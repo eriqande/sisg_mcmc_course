@@ -1,0 +1,73 @@
+\documentclass[pdftex]{article}
+\usepackage[pdftex]{graphics}
+\usepackage{subfigure}
+\usepackage{hhline}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{colortbl}
+\usepackage[screen,pdftex]{mcdlecture}
+\newcommand{\bs}{\relax}
+\newcommand{\es}{\newpage}
+\fboxsep=.01\textwidth \fboxrule=1pt
+\newsavebox{\savepar}
+\newenvironment{boxit}{\begin{lrbox}{\savepar}
+    \begin{minipage}[b]{0.975\textwidth}}
+    {\end{minipage}\end{lrbox}\framebox{\usebox{\savepar}}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% THE FOLLOWING ARE THINGS THAT WE MIGHT CHANGE FROM YEAR TO YEAR OR
+%% VENUE TO VENUE
+    \lhead{MCMC in Statistical Genetics}
+    \lfoot{Dr Eric C. Anderson and Dr Matthew Stephens}
+%	\lfoot{Dr Eric C. Anderson and Dr John Novembre}
+%    \rfoot{UW - Summer Institute, July 2013}
+%	 \rfoot{Edinburgh - European Institute, June 2012}
+\rfoot{Brazil - Summer Institute, February 2014}
+
+% on this one, be sure to update the venue and the module number
+%\newcommand{\coursetitlepage}{European Institute in Statistical Genetics
+%\newcommand{\coursetitlepage}{Summer Institute in Statistical Genetics
+\newcommand{\coursetitlepage}{Brazilian Edition of the Summer \\Institute in Statistical Genetics
+
+Module 9:
+
+MCMC for Genetics}
+
+%% Then update the schedule.  Note that I have broken that
+%% out into a separate file like: schedule_table_edinburgh2012.tex
+%% which is input in Overview.tex
+
+%% Then be sure to change any time-sensitive events in the 
+%% probability discussion in Matthew's first lecture.
+
+%% And also update "structure_fun" link to my wiki to the right
+%% year and venue.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\DeclareGraphicsExtensions{.jpg,.pdf,.png}%
+
+
+
+%% Eric added a few things:
+% some commands that Eric made for making a title while starting
+% a new lecture and for making titles of new slides.
+\newcommand{\newlecture}[1]{\newpage\begin{center}\section*{#1}\end{center}}
+\newcommand{\newslide}[1]{\newpage\subsection*{#1: \hfil}}
+ \newcommand{\Exp}{\Bbb{E}}
+ \newcommand{\Var}{{\mathrm{Var}}}
+ %% Some pretty etc.'s, etc...
+\newcommand{\cf}{{\em cf.}}
+\newcommand{\eg}{{\em e.g.},}
+\newcommand{\ie}{{\em i.e.},}
+\newcommand{\etal}{{\em et al.}\ }
+\newcommand{\etc}{{\em etc.}}
+
+%% some handy things for making bold math
+\def\bm#1{\mathpalette\bmstyle{#1}}
+\def\bmstyle#1#2{\mbox{\boldmath$#1#2$}}
+\newcommand{\thh}{^\mathrm{th}}
+\newcommand{\bpi}{{\pi}}
+\newcommand{\mP}{\mathbf{P}}

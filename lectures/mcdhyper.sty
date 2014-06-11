@@ -1,0 +1,19 @@
+\def\pdflink#1#2#3{%
+  \begingroup
+    \leavevmode
+    \pdfmark[{#1}]{%
+      pdfmark=/ANN,%
+      Subtype=/Link,
+      AcroHighlight=\@pdfhighlight,%
+      Border=\@pdfborder,%
+      linktype=file,%
+      Color=\@filebordercolor,%
+      Action=<<
+        /S /GoToR
+        \ifHy@newwindow /NewWindow true \fi
+        /F (#2)
+        /D \ifx\\#3\\[0 \@pdfstartview]\else(#3)\fi
+      >>%
+    }%
+  \endgroup
+}

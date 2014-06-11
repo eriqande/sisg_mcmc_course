@@ -1,0 +1,1563 @@
+%%
+%% This is file `mcdexerquiz.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% exerquiz.dtx  (with options: `copyright,package')
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Exerquiz.sty package,             2000-8-16          %%
+%% Copyright (C) 1999-2002  D. P. Story                 %%
+%%   dpstory@uakron.edu                                 %%
+%%                                                      %%
+%% This program can redistributed and/or modified under %%
+%% the terms of the LaTeX Project Public License        %%
+%% Distributed from CTAN archives in directory          %%
+%% macros/latex/base/lppl.txt; either version 1 of the  %%
+%% License, or (at your option) any later version.      %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mcdexerquiz}
+ [2002/04/23 v0.0a Exerquiz Exercises and Quizzes for LaTeX/PDF package (dps & modified by MCD)]
+\DeclareOption{forpaper}{%
+   \eqforpapertrue\PassOptionsToPackage{monochrome}{color}
+   \AtBeginDocument{\ifnum\eq@drivernum=4 \else\AllowPeeking\fi}
+}
+\DeclareOption{preview}{\previewtrue}
+\DeclareOption{nosolutions}{\eq@nosolutionstrue\eq@nolinktrue}
+\DeclareOption{nohiddensolutions}{\eq@globalshowsolutionstrue}
+\DeclareOption{noHiddensolutions}{\eq@globalshowsolutionstrue\AtBeginDocument{\def\Hidesymbol{h}}}
+\DeclareOption{solutionsafter}{\eq@solutionsaftertrue\eq@nolinktrue}
+\DeclareOption{nocorrections}{\eq@nocorrectionstrue}
+\DeclareOption{proofing}{\eq@proofingtrue}
+\DeclareOption{nodljs}{\PassOptionsToPackage{nodljs}{insdljs}}
+\DeclareOption{exercisesonly}{\PassOptionsToPackage{nodljs}{insdljs}}
+\DeclareOption{acrobativ}{\PassOptionsToPackage{nodljs}{insdljs}}
+\DeclareOption{debug}{\PassOptionsToPackage{debug}{insdljs}}
+\DeclareOption{dvipsone}{\def\eq@drivernum{0}\PassOptionsToPackage{dvipsone}{insdljs}}
+\DeclareOption{dvips}{\def\eq@drivernum{0}\PassOptionsToPackage{dvips}{insdljs}}
+\DeclareOption{pdftex}{\def\eq@drivernum{1}%
+   \def\eq@driver{pdftex}\def\eq@drivercode{epdftex.def}
+   \PassOptionsToPackage{pdftex}{color}
+   \PassOptionsToPackage{pdftex}{insdljs}
+}
+\DeclareOption{dvipdfm}{\def\eq@drivernum{2}%
+     \def\eq@driver{dvipdfm}\def\eq@drivercode{edvipdfm.def}
+     \PassOptionsToPackage{dvipdfm}{color}
+     \PassOptionsToPackage{dvipdfm}{insdljs}
+}
+\DeclareOption{textures}{\def\eq@drivernum{3}%
+  \def\eq@driver{textures}\def\eq@drivercode{epdfmark.def}%
+  \PassOptionsToPackage{textures}{color}%
+  \PassOptionsToPackage{textures}{insdljs}%
+}
+\DeclareOption{dviwindo}{\def\eq@drivernum{4}\def\eq@driver{dviwindo}\eq@noformstrue
+    \PassOptionsToPackage{nodljs}{insdljs}}
+\def\eq@drivernum{0}
+\def\eq@driver{dvipsone/dvips}
+\def\eq@drivercode{epdfmark.def}
+\let\LangRedefinitions=\relax
+\DeclareOption{french}{%
+   \def\LangRedefinitions{\InputIfFileExists{eqfr.def}%
+     {\typeout{exerquiz: Inputting French Option}}%
+     {\typeout{exerquiz: French Option: Cannot find the file eqfr.def,
+      using the default, English.}}}}
+\DeclareOption{german}{%
+   \def\LangRedefinitions{\InputIfFileExists{eqde.def}%
+   {\typeout{exerquiz: Inputting German Option}}%
+   {\typeout{exerquiz: German Option:Kann die Datei eqde.def
+     nicht finden, benutze Default, Englisch.}}}}
+\DeclareOption{norsk}{%
+   \def\LangRedefinitions{\InputIfFileExists{eqno.def}%
+   {\typeout{exerquiz: Inputting Norsk Option}}%
+   {\typeout{exerquiz: Norsk Option: Cannot find the file eqno.def,
+   using the default, English.}}}}
+\DeclareOption{dutch}{%
+   \def\LangRedefinitions{\InputIfFileExists{eqnl.def}%
+   {\typeout{exerquiz: Inputting Dutch Option}}%
+   {\typeout{exerquiz: Dutch Option: Kan bestand eqnl.def niet vinden,
+   gebruik default, Engels.}}}}
+\DeclareOption{spanish}{%
+   \def\LangRedefinitions{\InputIfFileExists{eqes.def}%
+   {\typeout{exerquiz: Inputting Spanish Option}}%
+   {\typeout{exerquiz: Spanish Option: Opci\'on Espa\~nola: no puede
+    encontrar el fichero eqes.def, usar\'a por defecto, English.}}}}
+\DeclareOption{italian}{%
+   \def\LangRedefinitions{\InputIfFileExists{eqit.def}%
+   {\typeout{exerquiz: Opzione Lingua Italiana}}%
+   {\typeout{exerquiz, Opzione Italiano: Non trovo il file eqit.def, utilizzo
+    quello di default, English.}}}}
+\DeclareOption{russian}{%
+   \def\LangRedefinitions{\InputIfFileExists{eqru.def}%
+   {\typeout{exerquiz: Inputting Russian Option}}%
+   {\typeout{exerquiz: Russian Option: Cannot find the file  eqru.def,
+   using the default, English.}}}}
+\DeclareOption{dansk}{%
+   \def\LangRedefinitions{\InputIfFileExists{eqda.def}%
+   {\typeout{exerquiz: Inputting Dansk Option}}%
+   {\typeout{exerquiz: Dansk Option: Cannot find the file eqda.def,
+   using the default, English.}}}}
+\DeclareOption{polish}{%
+   \def\LangRedefinitions{\InputIfFileExists{eqpo.def}%
+   {\typeout{exerquiz: Inputting Polish Option}}%
+   {\typeout{exerquiz: Polish Option: Cannot find the file eqpo.def,
+   using the default, English.}}}}
+\newif\ifpreview \previewfalse
+\let\iterate\relax
+\newif\ifeqforpaper \eqforpaperfalse
+\newif\ifeq@noforms \eq@noformsfalse
+\newif\ifeq@nosolutions \eq@nosolutionsfalse
+\newif\ifeq@solutionsafter \eq@solutionsafterfalse
+\newif\ifeq@nocorrections \eq@nocorrectionsfalse
+\newif\ifeq@proofing \eq@proofingfalse
+\newif\ifeq@nolink \eq@nolinkfalse
+\newif\ifeq@globalshowsolutions \eq@globalshowsolutionsfalse
+\newif\ifeq@hidesolution \eq@hidesolutionfalse
+\def\eq@ckglobalhide{\ifeq@globalshowsolutions\eq@hidesolutionfalse\fi}
+\def\hidesymbol{h}\def\Hidesymbol{H}
+\def\CorrectionsOn{\global\eq@nocorrectionsfalse}
+\def\CorrectionsOff{\global\eq@nocorrectionstrue}
+\AtBeginDocument{\ifeq@noforms\else\begin{Form}\fi}
+\AtEndDocument
+{%
+    \include@solutions
+    \ifeq@noforms\else
+        \include@quizsolutions
+        \end{Form}
+    \fi
+}
+\ProcessOptions
+\RequirePackage{color}
+\RequirePackage{verbatim}
+\RequirePackage{insdljs}
+\newcommand\exlabel{Exercise}
+\newcommand\exlabelsol{\exlabel}
+\newcommand\exsectitle{Solutions to \exlabel s}
+\newcommand\exsecrunhead{\exsectitle} %% change to @ form
+\newcommand\exsolafter{\textit{Solution}:}
+\newcommand\eq@sqslsectitle{Solutions to Quizzes}
+\newcommand\sqslsectitle{\eq@sqslsectitle}
+\newcommand\eq@sqslsecrunhead{Solutions to Quizzes}
+\newcommand\sqslsecrunhead{\eq@sqslsecrunhead}
+\newcommand\eq@sqsllabel{\string\textbf{Solution to Quiz:}}
+\newcommand\sqsllabel{\eq@sqsllabel}
+\newcommand\sqsolafter{\textit{Solution}:}
+\newcommand\eq@sqlabel{\textcolor{red}{Quiz}}
+\newcommand\sqlabel{\eq@sqlabel}
+\newcommand\eq@sqslrtnlabel{End Quiz}
+\newcommand\sqslrtnlabel{\eq@sqslrtnlabel}
+\newcommand\eqsqrtmsg{"Right!"}
+\newcommand\eqsqwgmsg{"Wrong!"}
+\newcommand\eq@bqlabel{Begin Quiz}
+\newcommand\bqlabel{\eq@bqlabel}
+\newcommand\eq@bqlabelISO{\eq@bqlabel}
+\newcommand\bqlabelISO{\eq@bqlabelISO}
+\newcommand\eq@eqlabel{End Quiz}
+\newcommand\eqlabel{\eq@eqlabel}
+\newcommand\eq@Score{Score:}\newcommand\eq@OutOf{out of}
+\newcommand\eqScore{\eq@Score}\newcommand\eqOutOf{\eq@OutOf}
+\newcommand\eqInitQuizMsg{%
+  "You must initialize the Quiz! Click on "+msg+"."}
+\newcommand\eqQuizTotalMsg{%
+  "\eqScore\space"+Score+" \eqOutOf\space"+nQuestions}
+\newcommand\eqQuizPointsMsg{%
+  "\eqScore\space"+ptScore+" \eqOutOf\space"+nPointTotal}
+\newcommand\eqQuizPercentMsg{pcScore+"\%"}
+\newcommand\eqQuizGradeMsg{quizGrade}
+\newcommand\eqMadeChoice{%
+  "You have already made a choice.
+   Your choice was ("+Responses[probno]+").
+   Do you want to change it?"}
+\newcommand\eq@local@CA{Correct}
+\newcommand\eq@local@RC{My Answers!}
+\newcommand\eq@local@AC{Please!}
+\newcommand\eq@local@CorrAnsButton{Ans}
+\newcommand\eqerrABS{"Absolute values not balanced. Please correct."}
+\newcommand\eqerrBadMathFunc{"The expression `"+aF[i]+"' is neither a defined
+    function, nor a valid math expression."}
+\newcommand\eqParens{"Parentheses"}
+\newcommand\eqBrackets{"Brackets"}
+\newcommand\eqBraces{"Braces"}
+\newcommand\eqerrDelimNotBal{aGroup[i][2] + " not balanced. Please correct."}
+\newcommand\eqerrBadExp{"Invalid mathematical expression.
+    A problem with one of the exponents.  Please correct."}
+\newcommand\eqerrUnfinishQuiz{"There is an unfinished quiz,
+    please finish before moving on to another."}
+\newcommand\noPeekMsg{"Viewing Solutions to quizzes is not allowed
+    until you take or finish this quiz!"}
+\newcommand\highThresholdMsg{"You are required to respond to all questions
+    before the quiz is evaluated."}
+\newcommand\eqSyntaxErrorUndefVar{"Syntax Error: Possibly an undefined variable present,
+    or an expression is not written in an expected format."}
+\typeout{^^Jexerquiz: * Using \eq@driver\space option *^^J}
+\newwrite \ex@solns \immediate\openout \ex@solns \jobname.sol
+\newwrite \quiz@solns \immediate\openout \quiz@solns \jobname.qsl
+\newcounter{eqexno} \setcounter{eqexno}{0}
+\newcounter{@exno} \setcounter{@exno}{0}  % running exno
+\newcounter{quizno} \setcounter{quizno}{0}
+\newcounter{eqpointvalue} \setcounter{eqpointvalue}{0}
+\newsavebox{\eq@tmpbox}
+\newdimen\eq@tmpdima
+\newlength\eq@tmplength
+\newcounter{questionno}
+\newcounter{partno}
+\renewcommand\thepartno{\alph{partno}}
+\def\Bbox#1#2{\hbox{\ifpreview\rlap{\vbox{\hrule width #1\relax
+    \hbox to#1{\vrule height#2\hfill\vrule height#2}\vfill\hrule}}\fi
+    \vbox to#2{\hbox to #1{\hfill}\vfill}}}
+\def\verbatimwrite{\@bsphack
+  \let\do\@makeother\dospecials
+  \catcode`\^^M\active \catcode`\^^I=12
+  \def\verbatim@processline{%
+    \immediate\write\verbatim@out
+      {\the\verbatim@line}}%
+  \verbatim@start}
+\def\endverbatimwrite{\@esphack}
+\newcommand\PBS[1]{\let\temp=\\#1\let\\=\temp}
+\newcommand\exlabelformat{{\scshape\exlabel\ \theeqexno.}}
+\newcommand\exlabelformatwp{{\scshape\exlabel\ \theeqexno.}}
+\newcommand\exsllabelformat{\noexpand\textbf{\exlabelsol\ \theeqexno.}}
+\newcommand\exsllabelformatwp
+     {\noexpand\textbf{\exlabelsol\ \theeqexno(\thepartno)}}
+\newcommand\exrtnlabelformat{\exlabelsol\ \theeqexno}
+\newcommand\exrtnlabelformatwp{$\square$}
+\newcommand\eqexerskip[1]{\def\eq@exerskip{\vskip#1}}
+\eqexerskip{\medskipamount}
+\newcommand\eqafterexersolnskip{\string\medskip}
+\newcommand\nolinkcolor{blue}
+\newcommand\proofingsymbol{\textcolor{webgreen}{$\bullet$}}
+\def\marginparpriorhook{} % used to insert marginal notes before the exercise
+\def\marginparafterhook{} % used to insert marginal notes before the exercise
+\let\afterlabelhskip=\space
+\def\eqexheader
+{%
+    \ifeq@nolink   % no link to solution
+        \noindent\hbox{\color{\nolinkcolor}\if\exerstar*\exlabelformatwp\else%
+        \exlabelformat\fi}%
+    \else
+        \noindent\hbox{\hyperlink{ex.\the@exno}{\exlabelformat}}%
+    \fi
+}
+\def\exercise{\begingroup % set defaults
+   \def\eq@argi{eqexno}%  % use eqexno counter
+   \def\exerstar{x}%      % default, no *
+   \def\currhideopt{x}%
+   \@ifnextchar[{\exercise@}{\exercise@@[\eq@argi]}}
+\def\exercise@[#1]{\def\eq@arg{#1}%
+    \if\eq@arg h%
+        \def\currhideopt{h}%
+        \eq@hidesolutiontrue\eq@nolinktrue%
+        \ifeq@globalshowsolutions
+            \eq@hidesolutionfalse\eq@nolinkfalse
+        \fi
+        \def\eq@next{\@exercise}%   h, no *, no counter
+    \else
+        \if\eq@arg H%
+            \edef\currhideopt{\Hidesymbol}%
+            \eq@hidesolutiontrue\eq@nolinktrue%
+            \ifeq@globalshowsolutions
+                \eq@hidesolutionfalse\eq@nolinkfalse
+            \fi
+            \def\eq@next{\@exercise}%   h, no *, no counter
+        \else
+            \def\currhideopt{x}%
+            \def\eq@next{\def\eq@argi{#1}\exercise@@[#1]}%
+        \fi
+    \fi
+\eq@next}
+\def\exercise@@[#1]{\@ifstar{\def\exerstar{*}\exercise@@@}%
+   {\def\exerstar{x}\exercise@@@}}%
+\def\exercise@@@{\@ifnextchar[{\exercise@@@@}{\@exercise}}
+\def\exercise@@@@[#1]{\def\eq@arg{#1}%
+    \if\eq@arg h%
+        \def\currhideopt{h}%
+        \eq@hidesolutiontrue\eq@nolinktrue
+        \ifeq@globalshowsolutions
+            \eq@hidesolutionfalse\eq@nolinkfalse
+        \fi
+        \def\eq@next{\@exercise}%   h, no *, no counter
+    \else
+        \if\eq@arg H%
+            \edef\currhideopt{\Hidesymbol}%
+            \eq@hidesolutiontrue\eq@nolinktrue%
+            \def\eq@next{\@exercise}%   h, no *, no counter
+        \else
+            \def\currhideopt{x}%
+            \typeout{The option #1 is not recognized}
+            \let\eq@next=\relax
+        \fi
+    \fi
+\eq@next}
+\def\@exercise
+{%
+    \let\verbatim@out=\ex@solns
+    \if\eq@argi0\else\refstepcounter{\eq@argi}\fi\stepcounter{@exno}%
+    \if\exerstar*% if exercise with parts
+        \eq@nolinktrue
+    \else
+        \if\currhideopt H%
+        \else
+            \ifeq@solutionsafter
+                \eq@nolinktrue  % no link to solution
+            \else
+                \eq@ckglobalhide %
+                \ifeq@hidesolution\else
+                    \immediate\write\verbatim@out{%
+                    \ifeqforpaper\else\string\webnewpage\fi
+                    \string\markright{\exsecrunhead}%
+                    \noindent\string\hypertarget{ex.\the@exno}%
+                    {\exsllabelformat}\string\relax\string\solnhspace}%
+                \fi
+            \fi
+        \fi
+    \fi
+    \ifvmode\ifdim\lastskip>\z@
+        \vskip-\lastskip
+    \fi\fi
+    \if\exerstar*%
+        \let\solution=\solnexer@woparts
+        \let\endsolution=\endsolnexer@woparts
+        \let\parts=\exercise@parts
+        \let\endparts\endexercise@parts
+    \else
+        \let\solution=\solnexer@woparts
+        \let\endsolution=\endsolnexer@woparts
+        \let\parts=\relax
+        \let\endparts=\relax
+        \if\Hidesymbol h\eq@nolinkfalse\ifeq@solutionsafter\eq@nolinktrue\fi\fi
+    \fi
+    \eq@exerskip
+    \marginparpriorhook\eqexheader%
+    \afterlabelhskip\marginparafterhook%
+    \ignorespaces
+}
+\def\endexercise{\par\endgroup\eq@exerskip}
+\let\solnhspace=\space
+\def\solnexer@woparts{\def\bLeaveVspace{x}% = no vertical space added
+    \def\next{\@ifnextchar[{\solnexer@@woparts}{\solnexer@@woparts[\null]}}%
+    \ifx\endparts\endexercise@parts@tabular\def\next{\solnexer@@@woparts}\fi
+    \next}
+\def\solnexer@@woparts[#1]{\relax%
+    \ifx#1\null
+    \else
+        \ifeq@nosolutions
+            \ifeq@solutionsafter\else
+                \let\bLeaveVspace=\@empty
+                \def\leavevspace{\par\vspace*{#1}}
+            \fi
+        \fi
+    \fi
+    \solnexer@@@woparts
+}
+\def\solnexer@@@woparts
+{%
+    \relax\def\exerwparts@cols{x}%
+    \if\currhideopt H%
+        \let\procsoln=\comment
+        \let\endprocsoln=\endcomment
+        \def\eq@next{\procsoln}%
+    \else
+        \eq@ckglobalhide
+        \ifeq@hidesolution
+            \let\procsoln=\comment
+            \let\endprocsoln=\endcomment
+        \else
+            \ifx\bLeaveVspace\@empty\leavevspace\fi
+            \let\procsoln=\verbatimwrite
+            \let\endprocsoln=\endverbatimwrite
+        \fi
+        \def\eq@next{%
+            \ifeq@solutionsafter
+                \smallbreak\noindent\exsolafter\space\ignorespaces
+            \else
+                \global\therearesolutionstrue\expandafter\procsoln
+            \fi
+        }%
+    \fi
+\eq@next}
+\def\endsolnexer@woparts
+{%
+    \if\currhideopt H%
+        \endprocsoln
+    \else
+        \ifeq@solutionsafter
+            \eq@fititin\hbox{\exrtnlabelformat}%
+        \else
+            \endprocsoln
+            \eq@ckglobalhide
+            \ifeq@hidesolution\else
+                \immediate\write\verbatim@out{\string\ReturnTo{page.\the\c@page}%
+                {\hbox{\if\exerstar*\exrtnlabelformatwp\else\exrtnlabelformat\fi}}%
+                \ifeqforpaper\string\par\eqafterexersolnskip\fi^^J}%
+            \fi
+        \fi
+    \fi
+}
+\def\exercise@parts{\def\exerwparts@cols{x}\@ifnextchar[%
+  {\let\endparts=\endexercise@parts@tabular\exercise@parts@tabular@}%
+  {\let\endparts=\endexercise@parts@list\exercise@parts@list}}
+\newenvironment{exercise@parts@list}%
+{\settowidth{\eq@tmplength}{\normalfont(d)}%
+\eq@nolinkfalse
+\begin{list}{\normalfont
+    \if\Hidesymbol h\eq@nolinkfalse\ifeq@solutionsafter\eq@nolinktrue\fi\fi
+    \if\currhideopt H%
+    \else
+        \ifeq@solutionsafter
+            \eq@nolinktrue  % no link to solution
+        \else
+            \ifeq@nosolutions
+                \eq@nolinktrue  % no link to solution
+            \else
+                \eq@ckglobalhide
+                \ifeq@hidesolution\eq@nolinktrue\else
+                    \immediate\write\verbatim@out{%
+                    \ifeqforpaper\else\string\webnewpage\fi
+                    \string\markright{\exsecrunhead}%
+                    \noindent\string\hypertarget{ex.\the@exno\thepartno}%
+                    {\exsllabelformatwp}\string\relax\string\solnhspace}%
+                \fi
+            \fi
+        \fi
+    \fi
+    \makebox[\eq@tmplength]{%
+        \ifeq@nolink
+            \color{\nolinkcolor}(\hfil\thepartno\hfil)%
+        \else
+            \hyperlink{ex.\the@exno\thepartno}{(\hfil\thepartno\hfil)}%
+        \fi}%
+}%
+{\usecounter{partno}%
+\settowidth{\labelwidth}{\normalfont(d)}%
+\setlength{\parsep}{0pt}\setlength{\itemindent}{0pt}%
+\setlength{\listparindent}{\parindent}
+\setlength{\leftmargin}{\labelwidth}%
+\settowidth{\labelsep}{\normalfont\ }
+\addtolength{\leftmargin}{\labelsep}%
+\let\eq@item=\item
+\def\item{\def\currhideopt{x}\eq@hidesolutionfalse\eq@nolinkfalse%
+  \@ifnextchar[\@ckhide\eq@item}}}%
+{\end{list}}
+\def\exercise@parts@tabular@[#1]{%
+  \def\exerwparts@cols{#1}\exercise@parts@tabular}
+\newenvironment{exercise@parts@tabular}%
+{\setcounter{partno}{0}%
+\settowidth{\eq@tmplength}{\normalfont(d)\ }\sbox{\eq@tmpbox}{(d)}%
+\let\eq@item=\item@part@tabular
+\def\item{\eq@hidesolutionfalse\eq@nolinkfalse%
+  \@ifnextchar[\@ckhide\eq@item}%
+\eq@nolinkfalse
+\eq@tmpdima=\linewidth \divide\eq@tmpdima by\exerwparts@cols
+\vskip\partopsep\noindent\normalbaselines\tabcolsep=0pt
+\begin{tabular}{*{\exerwparts@cols}{p{\eq@tmpdima}}}}
+{\end{tabular}}
+\def\item@part@tabular{\leavevmode\refstepcounter{partno}%
+  \eq@solutionsafterfalse % no solutionsafter are allowed
+  \ifeq@solutionsafter
+    \eq@nolinktrue  % no link to solution
+  \else\ifeq@nosolutions
+    \eq@nolinktrue  % no link to solution
+  \else
+      \eq@ckglobalhide
+      \ifeq@hidesolution\eq@nolinktrue\else
+      \immediate\write\verbatim@out{%
+      \ifeqforpaper\else\string\webnewpage\fi
+      \string\markright{\exsecrunhead}%
+      \noindent\string\hypertarget{ex.\the@exno\thepartno}%
+      {\exsllabelformatwp}\string\relax\string\solnhspace}%
+  \fi\fi\fi
+  \PBS\raggedright
+  \settowidth{\eq@tmplength}{\normalfont(d)\ }%
+  \sbox{\eq@tmpbox}{\normalfont(d)}%
+  \eq@tmpdima=\wd\eq@tmpbox
+  \hangindent=\eq@tmplength\hangafter=1\relax
+  \makebox[\eq@tmpdima]{%
+    \ifeq@nolink
+      \color{\nolinkcolor}(\hfil\thepartno\hfil)%
+    \else
+      \hyperlink{ex.\the@exno\thepartno}%
+        {(\hfil\thepartno\hfil)}%
+    \fi}\ \ignorespaces
+}
+\def\@ckhide[#1]{\def\eq@arg{#1}%
+    \def\currhideopt{x}%
+    \if\eq@arg H%
+        \eq@hidesolutiontrue\eq@nolinktrue%
+        \edef\currhideopt{\Hidesymbol}%
+    \else
+        \ifeq@globalshowsolutions\else
+            \if\eq@arg h%
+                \eq@hidesolutiontrue\eq@nolinktrue%
+                \def\currhideopt{h}%
+            \fi
+        \fi
+    \fi
+    \eq@item
+}
+\def\eq@fititin{\noindent\unskip\nobreak\hfill\penalty50
+\hskip2em\hbox{}\nobreak\hfill}
+\def\ReturnTo#1#2{\eq@fititin\hyperlink{#1}{#2}}
+\newif\iftherearesolutions \therearesolutionsfalse
+\def\includeexersolutions{%
+   \include@solutions\let\include@solutions=\relax}
+\let\eqsolutionshook=\@empty
+\def\include@solutions{\let\webnewpage=\relax
+\immediate\closeout\ex@solns
+\ifeq@nosolutions\else
+  \iftherearesolutions\newpage\markright{\exsecrunhead}%
+    \ifx\webnewpage\relax
+      \def\webnewpage{\let\webnewpage=\newpage}%
+    \fi
+  \section*{\exsectitle}%
+  \eqsolutionshook
+  \addcontentsline{toc}{section}{\protect\numberline{}\exsectitle}%
+  \input{\jobname.sol}%
+  \fi
+\fi}
+\def\SolutionsAfter{\eq@solutionsaftertrue\eq@nolinktrue}
+\def\SolutionsAtEnd{\eq@solutionsafterfalse\eq@nolinkfalse}
+\ifeq@noforms\endinput\fi
+\def\@eqCA#1{\def\eq@arg{#1}\ifx\eq@arg\@empty\let\eq@CA=\@empty\else\def\eq@CA{#1}\fi}
+\def\@eqRC#1{\def\eq@arg{#1}\ifx\eq@arg\@empty\let\eq@RC=\@empty\else\def\eq@RC{#1}\fi}
+\def\@eqAC#1{\def\eq@arg{#1}\ifx\eq@arg\@empty\let\eq@AC=\@empty\else\def\eq@AC{#1}\fi}
+\def\@eqBC#1{\def\eq@arg{#1}\ifx\eq@arg\@empty\let\eq@BC=\@empty\else\def\eq@BC{/BC [#1]}\fi}
+\def\eq@BC{}
+\def\@eqS#1{\def\eq@arg{#1}\ifx\eq@arg\@empty\let\eq@S=\@empty\else\def\eq@S{/S /#1}\fi}
+\def\eq@S{}
+\def\@eqBG#1{\def\eq@arg{#1}\ifx\eq@arg\@empty\let\eq@BG=\@empty\else\def\eq@BG{/BG [#1]}\fi}
+\def\eq@BG{}
+\def\@eqDA#1{\def\eq@DA{#1}}
+\def\eq@DA{\eq@textFont\space\eq@textSize\space Tf \eq@textColor}%
+\def\@eqBS#1{\def\eq@BS{#1}}
+\def\@eqrectH#1{\def\eq@rectH{#1}}
+\def\@eqrectW#1{\def\eq@rectW{#1}}
+\def\@eqtextSize#1{\def\eq@textSize{#1}}
+%\def\eq@textSize{9}
+\def\eq@textSize{15}
+\def\@eqtextFont#1{\def\eq@textFont{#1}}
+\def\eq@textFont{/Helv}
+\newcommand\@eqtextColor[2][rg]{\def\eq@textColor{#2 #1}}
+\def\eq@textColor{0 g}
+\def\@eqDV#1{\def\eq@DV{#1}}\def\eq@DV{}
+\def\@eqV#1{\def\eq@V{#1}}\def\eq@V{}
+\def\@eqF#1{\def\eq@F{#1}}\def\eq@F{4}
+\def\@eqFf#1{\def\eq@arg{#1}\ifx\eq@arg\@empty\let\eq@Ff=\@empty\else\def\eq@Ff{/Ff #1}\fi}\def\eq@Ff{}
+\def\@eqQ#1{\def\eq@Q{/Q #1}}\def\eq@Q{}
+\def\@eqH#1{\def\eq@H{/H /#1}}\def\eq@H{}
+\def\@eqmkIns#1{\def\eq@mkIns{#1 }}\def\eq@mkIns{}
+\def\@eqrawPDF#1{\def\eq@rawPDF{#1}}\def\eq@rawPDF{}
+\def\tallywidth#1{\def\tally@width{#1}}
+\def\tally@width{15bp}
+%% Following settings changed by MCD
+%\def\DefaultHeightOfWidget{11bp}
+%\def\RadioFieldSize{11bp}
+%\def\RBW{2in}
+%\def\SFW{1.5in}
+\def\DefaultHeightOfWidget{15bp}
+\def\RadioFieldSize{15bp}
+\def\RBW{2in}
+\def\SFW{1.5in}
+\def\eq@setButtonProps#1[#2]%
+{%
+    \processAppArgs#2\end\@nil         % set widget properties
+    \Hy@pdfstringfalse
+    \sbox{\eq@tmpbox}{\ \eq@CA\ }\eq@tmpdima=\wd\eq@tmpbox
+    \sbox{\eq@tmpbox}{\ \eq@RC\ }%
+    \ifdim\eq@tmpdima>\wd\eq@tmpbox\else\eq@tmpdima=\wd\eq@tmpbox\fi%
+    \sbox{\eq@tmpbox}{\ \eq@AC\ }%
+    \ifdim\eq@tmpdima>\wd\eq@tmpbox\else\eq@tmpdima=\wd\eq@tmpbox\fi%
+    \wd\eq@tmpbox = \eq@tmpdima
+    #1%
+}
+\def\eq@setWidgetProps#1[#2]%
+{%
+    \processAppArgs#2\end\@nil         % set widget properties
+    #1%
+}
+\def\processAppArgs#1#2%
+{%
+    \ifx\end#1% if #1=\end, #2=\@nil.
+    \else
+        \csname @eq\expandafter\@gobble\string#1\endcsname{#2}%
+        \expandafter\processAppArgs
+    \fi
+}
+\newdimen\eqcenterWidget
+\def\centerWidget#1{%
+    \eqcenterWidget=#1\relax
+    \eqcenterWidget=.5\eqcenterWidget
+    \advance\eqcenterWidget by -4bp
+}
+\def\common@TextFieldCode
+{%
+    /Subtype /Widget
+    /T (\Fld@name)
+    /FT /Tx
+    \eq@Ff\space
+    /F \eq@F\space
+    \eq@Q\space
+    /BS << \eq@BS\space >>\space
+    /MK << \eq@BC\space\eq@BG >>\space
+    /DA (\eq@DA)\space
+    /DV (\eq@DV)\space
+    /V (\eq@V)\space
+    \eq@rawPDF\space
+}
+\def\common@ButtonCode{%
+        /Subtype /Widget
+        /T (\Fld@name)
+        /FT /Btn
+        \eq@Ff
+        \eq@H\space /F \eq@F\space
+        /BS << \eq@S\space\eq@BS >>
+        /MK << \eq@mkIns\eq@BC\space\eq@BG\space
+                /CA (\eq@CA) /RC (\eq@RC) /AC (\eq@AC) >>
+        /DA (\eq@DA)
+        \eq@rawPDF\space
+}%
+\newcommand\eqTextField[4][]
+{%
+    \begingroup
+    \def\eq@Title{#2}\def\eq@rectW{#3}\def\eq@rectH{#4}\def\Fld@name{#2}%
+    \def\eq@rawPDF{}\def\eq@BC{}\def\eq@BG{}\def\eq@BS{/S /N}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \noindent\eq@setWidgetProps\eq@TextField[#1]%
+}
+\newcommand\eqGenButton[4][]
+{%
+    \medskip\begingroup
+    \def\eq@rawPDF{}\def\eq@BS{/W 1 /S /B}\def\eq@mkIns{}%
+    \def\eq@CA{}\def\eq@RC{}\def\eq@AC{}\eqH{P}%
+    \@eqBC{1 0 0}\@eqBG{.7529 .7529 .7529}\def\eq@Ff{/Ff 65536}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \def\Fld@name{#2}\def\eq@rectH{#3}\def\eq@rectW{#4}%
+    \noindent\eq@setButtonProps\eq@Button@driver[#1]%
+}
+\newcommand\prior@questionsHook{}
+\newcommand\post@questionsHook{}
+\newenvironment{questions}
+{%
+    \begin{list}{\prior@questionsHook\gdef\eqPTs{1}%
+    \color{blue}\normalfont\bfseries\arabic{questionno}.\ \post@questionsHook}%
+    {\usecounter{questionno}%
+    \setcounter{eqpointvalue}{0}%
+    \settowidth{\labelwidth}{\normalfont\bfseries00.\ }%
+    \setlength{\parsep}{0pt}\setlength{\itemindent}{0pt}%
+    \setlength{\itemsep}{3pt}%
+    \setlength{\leftmargin}{\labelwidth}%
+    \setlength{\labelsep}{0pt}}
+}{\end{list}}
+\def\sq@priorhook{\medskip\noindent}
+\def\shortquiz{\@ifstar{\def\sqstar{*}\@shortquiz}{\def\sqstar{x}\@shortquiz}}
+\def\@shortquiz{\@ifnextchar[{\@@shortquiz}{\@@shortquiz[]}}
+\def\@@shortquiz[#1]{\begingroup%\qzEnvfalse
+  \gdef\oField{#1}\gdef\curr@quiz{#1}\global\let\eqQuizType=s%
+  \let\@qzsolndest=\@empty
+  \if\sqstar*%
+    \let\Ans=\Ans@sq@f
+    \ifx\oField\@empty
+        \typeout{^^JExerquiz: Base field name required when using shortquiz with '*' option}
+        \typeout{Exerquiz: Assuming link style^^J}
+        \let\Ans=\Ans@sq@l
+    \fi
+  \else
+     \let\Ans=\Ans@sq@l
+  \fi
+  \let\answers=\answers@sq
+  \let\endanswers=\endanswers@sq
+  \let\solution=\solution@sq
+  \let\endsolution=\endsolution@sq
+  \sq@priorhook\sqlabel\space\ignorespaces
+} % end of shortquiz macro
+\def\endshortquiz{\setcounter{quizno}{0}%
+  \global\let\sqlabel=\eq@sqlabel
+  \global\let\sqslrtnlabel=\eq@sqslrtnlabel
+  \global\let\sqsllabel=\eq@sqsllabel
+  \par\medskip\endgroup}
+\def\Ans@sq@l#1{\leavevmode\stepcounter{quizno}\PBS\raggedright
+\gdef\Ans@choice{#1}%
+\settowidth{\eq@tmplength}{(d)\ }\sbox{\eq@tmpbox}{(d)}%
+\eq@tmpdima=\wd\eq@tmpbox
+\hangindent=\eq@tmplength\hangafter=1
+\Ans@sq@l@driver}
+\def\Ans@sq@l@driver{%
+\def\commonFieldCode{%
+    \if\Ans@choice1
+    /S /JavaScript /JS (app.alert(\eqsqrtmsg,3);)
+    \ifx\@qzsolndest\@empty\else
+    \ifeq@solutionsafter\else
+    /Next << /S /GoTo /D (\@qzsolndest) >>\fi\fi%
+    \else
+    /S /JavaScript /JS (app.alert(\eqsqwgmsg,3);\jsR
+    \ifx\oField\@empty\else
+    updateTally("\oField.\thequestionno");
+    \fi
+    )
+    \fi}\@Ans@sq@l@driver
+}
+\def\Ans@sq@f#1{\leavevmode\stepcounter{quizno}\PBS\raggedright
+\gdef\Ans@choice{#1}%
+\settowidth{\eq@tmplength}{\kern\RadioFieldSize\ }%
+\eq@tmpdima=\wd\eq@tmpbox
+\hangindent=\eq@tmplength\hangafter=1
+\Ans@sq@f@driver}
+
+\def\Ans@sq@f@driver{%
+\def\commonFieldCode{%
+  /Subtype /Widget
+  /T (\oField.\thequestionno)
+  /FT /Btn /Ff 49152 /F 4
+  /H /P /BS << /W 1 /S /S >>
+  /MK <<  /BC [ 0 0 0 ] /CA (\symbol@choice) >>
+  /DA (/ZaDb 12 Tf 0 0 0 rg)
+  /A <<
+        \if\Ans@choice1
+        /S /JavaScript /JS (app.alert(\eqsqrtmsg,3);)
+        \ifx\@qzsolndest\@empty\else
+        \ifeq@solutionsafter\else
+        /Next << /S /GoTo /D (\@qzsolndest) >>\fi\fi%
+        \else
+       /S /JavaScript /JS (app.alert(\eqsqwgmsg,3);\jsR
+       \ifx\oField\@empty\else
+       updateTally("\oField.\thequestionno");
+       \fi
+       )
+       \fi%
+   >>
+  /AP << /N << /\Ans@choice\alph{quizno} /null >> >>
+}\@Ans@sq@f@driver}
+\def\Ans@l#1{\leavevmode\stepcounter{quizno}\PBS\raggedright
+    \gdef\Ans@choice{#1}%
+    \settowidth{\eq@tmplength}{(d)\ }\sbox{\eq@tmpbox}{(d)}%
+    \eq@tmpdima=\wd\eq@tmpbox
+    \hangindent=\eq@tmplength\hangafter=1
+    \Ans@@l
+}
+\def\Ans@@l{%
+\def\commonLinkCode{%
+     /S /JavaScript /JS (%
+     RecordPointValue(\eqPTs,\thequestionno);\jsR
+     ProcessQuestion(\Ans@choice,"\alph{quizno}",\thequestionno,\thequizno,%
+     "\curr@quiz",1,\ifeq@nocorrections0\else1\fi,"\bqlabelISO"))}%
+\def\commonFieldCode{%
+  /T (mcq.\curr@quiz.\thequestionno.\thequizno)
+  /FT /Btn /F 6 % printable but hidden
+  /H /N
+  /DA (/ZaDb 12 Tf 0 .6 0 rg)
+  /AP << /N << /Yes /null >> >>
+  \if\Ans@choice1 /DV /Yes\space
+  /MK << \ifx\@qzsolndest\@empty\else\solution@Color\fi\space /CA (\eq@circle)>>
+    \ifx\@qzsolndest\@empty
+        /Ff 1  % if no solution, make the checkbox readonly
+    \else % solution declared,
+        \quiz@SolutionActionHook
+    \fi
+  \else
+    /MK << /CA (\eq@circle) >>
+    /Ff 1 % if alternative is a false on, we want readonly too
+  \fi
+  /Subtype /Widget}%
+\Ans@l@driver
+}
+\def\Ans@f#1{\par\stepcounter{quizno}\PBS\raggedright
+    \gdef\Ans@choice{#1}%
+    \settowidth{\eq@tmplength}{\kern\RadioFieldSize\ }%
+    \eq@tmpdima=\wd\eq@tmpbox
+    \@eqBC{0 0 0}%
+    \hangindent=\eq@tmplength\hangafter=1
+    \Ans@@f
+}
+\def\Ans@@f{%
+  \def\commonFieldCode{%
+    /T (mc.\curr@quiz.\thequestionno)
+    /FT /Btn /Ff 49152 /F 4
+    /H /P /BS << /W 1 /S /S >>
+    /MK <<  /BC [ 0 0 0 ] /CA (\symbol@choice) >>
+    /DA (/ZaDb 12 Tf 0 0 0 rg)
+    /A << /S /JavaScript /JS (%
+        RecordPointValue(\eqPTs,\thequestionno);\jsR
+        ProcessQuestion(\Ans@choice,"\alph{quizno}",\thequestionno,\thequizno,%
+            "\curr@quiz",0,\ifeq@nocorrections0\else1\fi,"\bqlabelISO")) >>
+    /AP << /N << /\Ans@choice\alph{quizno} /null >> >>
+    /Subtype /Widget}%
+    \def\commonFieldCodei{%
+    /T (mcq.\curr@quiz.\thequestionno.\thequizno)
+    /FT /Btn /F 6 % printable but hidden
+    /H /N /BS << /W 1 /S /S >>
+    %  /MK << /BC [ 0 0 0 ] /CA (\eq@circle) >>
+    /DA (/ZaDb 12 Tf 0 .6 0 rg)
+    /AP << /N << /Yes /null >> >>
+    \if\Ans@choice1 /DV /Yes\space
+        /MK << \ifx\@qzsolndest\@empty\eq@BC\else\solution@Color\fi\space /CA (\eq@circle) >>
+        \ifx\@qzsolndest\@empty
+            /Ff 1  % if no solution, make the checkbox readonly
+        \else % solution declared,
+            \quiz@SolutionActionHook
+        \fi
+    \else
+        /MK <<  /BC [ 0 0 0 ] /CA (\eq@circle) >>
+        /Ff 1 % if alternative is a false on, we want readonly too
+    \fi
+    /Subtype /Widget}%
+    \centerWidget\RadioFieldSize
+    \Ans@f@driver
+}
+\def\quiz@SolutionActionHook{%
+    /A << /S /GoTo /D (\@qzsolndest)
+            /Next << /S /JavaScript
+            /JS (this.resetForm(["mcq.\curr@quiz.\thequestionno.\thequizno"]);) >> >>
+}
+\def\answers@sq{\@ifnextchar[{\answers@@sq}%
+    {\@ifstar{\answers@@sq[\curr@quiz.\thequestionno]}{\answers@@sq[]}}}
+\let\sq@hwdest=\@empty % hard-wired destination
+\def\answers@@sq[#1]#2{%
+    \ifx\sq@hwdest\@empty
+        \xdef\@qzsolndest{#1}%
+    \else
+        \gdef\@qzsolndest{\sq@hwdest}%
+    \fi
+    \ifx#21\expandafter\answers@sq@list\else
+    \expandafter\answers@@sq@tabular\fi{#2}%
+}
+\def\Ans@sq@list#1{\stepcounter{quizno}%
+\xdef\Ans@choice{#1}\item\relax}%
+\newenvironment{answers@sq@list}[1]
+{%
+    \let\endanswers=\endanswers@sq@list
+    \ifx\Ans\Ans@sq@l
+    \let\Ans@sq@list@driver=\Ans@sq@l@driver
+    \else
+    \let\Ans@sq@list@driver=\Ans@sq@f@driver
+    \fi
+    \begin{list}{\Ans@sq@list@driver\ }%
+    {%
+        \usecounter{partno}%
+        \ifx\Ans\Ans@sq@l
+            \settowidth{\labelwidth}{\normalsize\normalfont(d)\ }%
+            \settowidth{\eq@tmpdima}{\normalsize\normalfont(d)}%
+        \else
+            \settowidth{\labelwidth}{\normalsize\normalfont\kern\RadioFieldSize\ }%
+        \fi
+        \setlength{\parsep}{0pt}\setlength{\itemindent}{0pt}%
+        \setlength{\listparindent}{\parindent}%
+        \setlength{\leftmargin}{\labelwidth}%
+        \setlength{\labelsep}{0pt}%
+        \def\Ans{\Ans@sq@list}%
+        %\def\Ans{\item\relax\eq@Ans}%
+    }%
+}%
+{\end{list}\setcounter{quizno}{0}}
+
+\def\answers@@sq@tabular#1{%
+  \vskip\aboveanswersSkip\noindent\tabcolsep=0pt
+  \eq@tmpdima=\linewidth \divide \eq@tmpdima by#1 %
+  \begin{tabular}{*{#1}{p{\eq@tmpdima}}}}%
+\def\endanswers@sq{\end{tabular}\setcounter{quizno}{0}}%
+\def\solution@sq{\let\eq@next=\relax
+  \ifx\@qzsolndest\@empty
+    \typeout{exerquiz: * Solutions unexpected here *}%
+    \typeout{exerquiz: * Will assume 'solutionsafter' option *}%
+    \eq@solutionsaftertrue
+  \fi
+  \ifeq@solutionsafter
+    \par\smallskip\noindent
+    \sqsolafter
+  \else
+    \global\therearequizsolutionstrue\let\verbatim@out=\quiz@solns
+    \immediate\write\verbatim@out{%
+      \string\eqQt\ifx\eqQuizType q1\else0\fi%
+      \string\quizSolnHeader\ifx\eqQuizType q\ifx\allow@peek n[{\curr@quiz}{\currQuizStartPage}]\fi\fi%
+      {\@qzsolndest}{\sqsllabel}\relax}%
+    \expandafter\verbatimwrite
+  \fi}%
+\def\endsolution@sq{%
+  \ifeq@solutionsafter
+    \eq@fititin\hbox{\sqslrtnlabel}%
+  \else
+    \endverbatimwrite
+    \ifx\@qzsolndest\@empty\else\immediate\write\verbatim@out{%
+    \string\ReturnTo{page.\the\c@page}%
+    {\hbox{\sqslrtnlabel}}%
+    \ifeqforpaper
+      \string\par\string\medskip\fi^^J}%
+    \fi
+  \fi\global\let\@qzsolndest=\@empty}%
+\let\eqQt=\@gobble
+\newcommand\quizSolnHeader[3][]{%
+    \ifeqforpaper\else\webnewpage\fi
+    \noindent\ifx#1\empty\else\noPeek#1\fi
+    \hypertarget{#2}{#3}\relax\solnhspace}
+\def\AllowPeeking{\global\let\allow@peek=y}\AllowPeeking
+\def\NoPeeking{\global\let\allow@peek=n}
+\def\noPeekAction#1#2{/AA << /O << /S /JavaScript /JS (noPeek("#1",#2))
+      >> >>}
+\newif\iftherearequizsolutions \therearequizsolutionsfalse
+\def\includequizsolutions{\include@quizsolutions
+   \let\include@quizsolutions=\relax}
+\def\include@quizsolutions{\let\webnewpage=\relax
+\immediate\closeout\quiz@solns
+\iftherearequizsolutions\newpage\markright{\eq@sqslsecrunhead}%
+  \ifx\webnewpage\relax
+     \def\webnewpage{\let\webnewpage=\newpage}%
+  \fi
+  \section*{\sqslsectitle}%
+  \addcontentsline{toc}{section}{\protect\numberline{}\sqslsectitle}%
+  \input{\jobname.qsl}%
+\fi}
+\newenvironment{oQuestion}[1]
+{%
+    \gdef\oField{#1}\let\@qzsolndest=\@empty
+    \setcounter{questionno}{0}\stepcounter{questionno}%
+    \let\eqQuizType=s\gdef\eqPTs{1}%
+    \let\solution=\solution@sq
+    \let\endsolution=\endsolution@sq
+}{}
+\def\oSolution#1{\edef\@qzsolndest{#1}}
+\newcommand\RespBoxNT{\def\rbFlag{0}\@RespBox}
+\newcommand\RespBox{\def\rbFlag{0}\@RespBox}
+\newcommand\RespBoxMath{\def\rbFlag{0}\@RespBox}
+\newcommand\@RespBox[1][]
+{%
+    \smallskip\begingroup\addtocounter{eqpointvalue}{\eqPTs}%
+    \@eqBC{0 0 0}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \def\eq@BS{/S /N}%
+    \def\eq@rectW{\RBW}%
+    \def\eq@rectH{\DefaultHeightOfWidget}%
+    \noindent\eq@setWidgetProps\eq@RespBox[#1]%
+}
+\def\eq@RespBox#1{\@ifnextchar({\@eq@RespBox{#1}}{\@eq@RespBox{#1}(x)}}
+\def\@eq@RespBox#1(#2){\@ifnextchar[{\@eq@RespB@x{#1}(#2)}%
+    {\@ifstar{\@eq@RespB@x{#1}(#2)[\curr@quiz.\thequestionno]}%
+            {\@eq@RespB@x{#1}(#2)[]}}}
+\def\@eq@RespB@x#1(#2)[#3]#4#5#6{%
+    \xdef\@qzsolndest{#3}%
+    \ifx\eqQuizType q% no tally box allowed in quiz environment
+        \def\rbFlag{1}% signals "silent mode": ignore tally box
+    \fi
+    \def\indepVar{"#2"}%
+    \def\rbArgstmp{\rbFlag,"#1",#4,#5}%
+    \@checkforInterval#6\\%
+}
+\def\@checkforInterval{\@ifnextchar[{\@checkforIntervali}{\@checkforIntervalii}}
+\def\@checkforIntervali#1\\{%
+    \def\rbArgs{\rbArgstmp,"#1",\indepVar}%
+    \@ifnextchar[{\@eq@@RespBox}{\@eq@@RespBox[diffCompare]}%
+}
+\def\@checkforIntervalii#1\\#2{%
+    \def\rbArgs{\rbArgstmp,"[#1,#2]",\indepVar}%
+    \@ifnextchar[{\@eq@@RespBox}{\@eq@@RespBox[diffCompare]}%
+}
+\def\@eq@@RespBox[#1]{\@ifstar{\jsRespBox[#1]}{\jsRespBox[#1]{ProcResp}}}
+\def\jsRespBox[#1]#2{%
+    \ifx\eqQuizType q\def\Fld@name{obj.\curr@quiz.\thequestionno}%
+    \else\def\Fld@name{\oField.\thequestionno}\fi
+    \centerWidget\eq@rectH\leavevmode
+    \def\commonFieldCode{%
+        /Subtype /Widget
+        /T (\Fld@name)
+        /FT /Tx
+        /F 4 /BS << \eq@BS\space >>
+        /MK << \eq@BC >>
+        /DA (\eq@DA)
+        /AA <<
+        \ifx\eqQuizType q%
+        /K  << /S /JavaScript
+            /JS (%
+                if(event.willCommit){\jsR\jsT
+        %        var retn = ProcResp(\rbArgs,#1);\jsR\jsT
+                RecordPointValue(\eqPTs,\thequestionno);\jsR\jsT
+                var retn = #2(\rbArgs,#1);\jsR\jsT
+                if (retn != null)\jsR\jsT\jsT
+                    ProcUserResp(retn,event.value,\thequestionno,0);\jsR
+                }\jsR
+            if (!isQuizInitialized("\curr@quiz")) {\jsR\jsT
+        %        if (QuizInitialized !=1) {\jsR\jsT
+                    app.alert(InitMsg("\bqlabelISO"),3);\jsR\jsT
+                    event.rc = false;\jsR
+                }%
+            ) >>
+        \else
+        /K << /S /JavaScript
+                /JS (if(event.willCommit)
+        %            retn = ProcResp(\rbArgs,#1);
+                    retn = #2(\rbArgs,#1);
+                    )
+                >>
+        /Fo <</S /JavaScript
+                /JS (var retn = null;)
+            >>
+        /Bl << /S /JavaScript
+                /JS (OnBlurRespBox(retn);)
+            >>
+        \fi
+            >>
+    }%
+    \eq@RespBox@driver % send to the driver-dependent macro
+}
+\newcommand\RespBoxTxtNT{\def\rbFlag{0}\@RespBoxTxt}
+\newcommand\RespBoxTxt{\def\rbFlag{0}\@RespBoxTxt}
+\newcommand\@RespBoxTxt[1][]
+{%
+    \smallskip\begingroup\addtocounter{eqpointvalue}{\eqPTs}%
+    \@eqBC{0 0 0}\def\eq@BS{/W 1 /S /N}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \def\eq@rectW{\RBW}\def\eq@rectH{\DefaultHeightOfWidget}%
+    \noindent\eq@setWidgetProps\eq@RespBoxTxt[#1]%
+}
+\def\eq@RespBoxTxt{\centerWidget\eq@rectH\leavevmode
+    \ifx\eqQuizType q% no tally box allowed in quiz environment
+        \def\rbFlag{1}% signals "silent mode": ignore tally box
+    \fi
+    \@@RespBoxTxt
+}
+\def\@@RespBoxTxt#1#2{%
+    \@ifnextchar[{\@@@RespBoxTxt{#1}{#2}}
+        {\@ifstar{\@@@RespBoxTxt{#1}{#2}[\curr@quiz.\thequestionno]}{\@@@RespBoxTxt{#1}{#2}[]}}}
+\def\@@@RespBoxTxt#1#2[#3]#4{%
+    \xdef\@qzsolndest{#3}%
+    \def\numArgs{#4}% check whether this is a positive integer?
+    \begingroup
+    \gdef\rbTxtAlt{\rbFlag,#1,#2}%
+    \count0 = #4 \ifnum\count0 > 0 \expandafter\@argRead\fi}
+    \def\@argRead#1{\edef\jsTemp{\rbTxtAlt}\xdef\rbTxtAlt{\jsTemp,"#1"}\@@argRead}
+    \def\@@argRead{\advance\count0 by-1\relax
+    \ifnum\count0=0\relax
+        \def\next{\endgroup\eq@@RespBoxTxt}%
+    \else
+        \def\next{\@argRead}%
+    \fi\next
+}
+\def\eq@@RespBoxTxt{%
+    \ifx\eqQuizType q\def\Fld@name{obj.\curr@quiz.\thequestionno}%
+    \else\def\Fld@name{\oField.\thequestionno}\fi
+    \def\commonFieldCode{%
+        /Subtype /Widget
+        /T (\Fld@name)
+        /FT /Tx
+        /F 4 /BS << \eq@BS\space >>
+        /MK << \eq@BC >>
+        /DA (\eq@DA)
+        /AA <<
+        \ifx\eqQuizType q%
+        /K  << /S /JavaScript
+                /JS (%
+                        if(event.willCommit){\jsR\jsT
+                        RecordPointValue(\eqPTs,\thequestionno);\jsR\jsT
+                        var retn = ProcRespTxt(\rbTxtAlt);\jsR\jsT
+                        if (retn != null)\jsR\jsT\jsT
+                            ProcUserResp(retn,event.value,\thequestionno,0);\jsR
+                        }\jsR
+                        if (!isQuizInitialized("\curr@quiz")) {\jsR\jsT
+                            app.alert(InitMsg("\bqlabelISO"),3);\jsR\jsT
+                            event.rc = false;\jsR
+                        }%
+                ) >>
+        \else
+        /K << /S /JavaScript
+                /JS (if(event.willCommit) retn = ProcRespTxt(\rbTxtAlt);)
+            >>
+        /Fo <</S /JavaScript
+                /JS (var retn = null;)
+            >>
+        /Bl <</S /JavaScript
+                /JS (OnBlurRespBox(retn);)
+            >>
+        \fi
+            >>
+    }%
+    \eq@RespBox@driver
+}
+\newcommand\RespBoxEssay[1][]
+{%
+    \smallskip\begingroup\addtocounter{eqpointvalue}{\eqPTs}%
+    \@eqBC{0 0 0}\def\eq@BS{/W 1 /S /N}\@eqFf{4096}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \def\eq@rectW{\linewidth}\def\eq@rectH{6\baselineskip}%
+    \def\Fld@name{essay.\curr@quiz.\thequestionno}%
+    \def\eq@rawPDF{%
+        /AA <<
+            \ifx\eqQuizType q%
+                /K  << /S /JavaScript
+                    /JS (%
+                        if(event.willCommit){\jsR\jsT
+                        RecordPointValue(\eqPTs,\thequestionno);\jsR\jsT
+                        }\jsR
+                        if (!isQuizInitialized("\curr@quiz")) {\jsR\jsT
+                            app.alert(InitMsg("\bqlabelISO"),3);\jsR\jsT
+                            event.rc = false;\jsR
+                        }%
+                        )
+                    >>
+            \fi
+            >>
+    }%
+    \noindent\eq@setWidgetProps\eq@TextField[#1]%
+}
+\newcommand\sqTallyBox[1][]
+{%
+    \begingroup
+    \@eqBC{0 0 0}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 1 0 0 rg}%
+    \def\eq@BS{/S /I}\def\eq@Q{/Q 2}\def\eq@Ff{/Ff 1}%
+    \def\eq@rectW{\tally@width}\def\eq@rectH{\DefaultHeightOfWidget}%
+    \def\Fld@name{tally.\oField.\thequestionno}%
+    \noindent\eq@setWidgetProps\eq@TextField[#1]%
+}
+\newcommand\sqTallyTotal[1][]
+{%
+    \begingroup
+    \@eqBC{0 0 0}\def\eq@BS{/S /I}%\def\eq@F{4}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 1 0 0 rg}%
+    \def\eq@rectW{\tally@width}\def\eq@rectH{\DefaultHeightOfWidget}%
+    \def\Fld@name{tallytotal.\oField}\def\eq@Q{/Q 2}\def\eq@Ff{/Ff 1}%
+    \def\eq@rawPDF{%
+        /AA <<
+        /K << /S /JavaScript
+                /JS (AFNumber_Keystroke(0,0,0,0,"",true);) >>
+        /F << /S /JavaScript
+                /JS (AFNumber_Format(0,0,0,0,"",true);) >>
+        /C << /S /JavaScript
+                /JS (AFSimple_Calculate("SUM",new Array("tally.\oField"));) >>
+        >>
+    }%
+    \noindent\eq@setWidgetProps\eq@calcTextField[#1]%
+}
+\newcommand\CorrAnsButton[1][]
+{%
+    \begingroup
+    \def\eq@CA{\eq@local@CorrAnsButton}%
+    \let\eq@RC=\eq@CA\let\eq@AC=\eq@CA
+    \@eqBC{0 0 0}\@eqBG{.7529 .7529 .7529}\def\eq@BS{/W 1 /S /N}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \def\eq@rectH{\DefaultHeightOfWidget}\let\eq@rectW=\@empty
+    \ifx\eqQuizType q\def\Fld@name{corr.\curr@quiz.\thequestionno}%
+    \else\def\Fld@name{corr.\oField.\thequestionno}\fi
+    \noindent\eq@setButtonProps\eq@CorrAnsButton[#1]%
+}
+\def\eq@CorrAnsButton#1{%
+    \def\commonFieldCode{%
+        /Subtype /Widget
+        /T (\Fld@name)
+        /FT /Btn
+        /Ff  65540    %\FfNoExport \FfPushButton or
+        /H /P
+        \ifx\eqQuizType q/F 6\else/F 4\fi
+        /BS << \eq@BS\space >>
+        /MK << \ifx\@qzsolndest\@empty\eq@BC\else\solution@Color\fi\space
+                \eq@BG\space  /CA (\eq@CA) /RC (\eq@RC) /AC (\eq@AC)
+            >>
+        /DA (\eq@DA)
+        \ifx\eqQuizType q%
+        /A  << /S /JavaScript
+                /JS (%
+                    \ifx\@qzsolndest\@empty\else
+                    if (event.shift)\jsR\jsT
+                    this.gotoNamedDest("\@qzsolndest");\jsR
+                    else\jsR\jsT
+                    \fi
+                    DisplayAnswer("Ans.\curr@quiz","#1"))
+            >>
+        \else
+        /A  << /S /JavaScript
+                /JS (%
+                    \ifx\@qzsolndest\@empty\else
+                    if (event.shift)\jsR\jsT
+                    this.gotoNamedDest("\@qzsolndest");\jsR
+                    else\jsR\jsT
+                    \fi
+                    DisplayAnswer("\oField.\thequestionno","#1"))
+            >>
+        \fi
+    }%
+    \centerWidget\eq@rectH\leavevmode
+    \eq@CorrAnsButton@driver
+}
+\newcommand\sqClearButton[1][]
+{%
+    \begingroup
+    \def\eq@CA{Clear}\def\eq@RC{Clear}\def\eq@AC{Clear}%
+    \@eqBC{0 0 0}\@eqBG{.7529 .7529 .7529}\def\eq@BS{/W 1 /S /B}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \def\eq@rectH{\DefaultHeightOfWidget}\let\eq@rectW=\@empty
+    \noindent\eq@setButtonProps\eq@sqClearButton[#1]%
+}
+\def\eq@sqClearButton{%
+    \def\commonFieldCode{%
+        /Subtype /Widget
+        /T (clear.\oField)
+        /FT /Btn
+        /Ff  65540
+        /H /P /F 4
+        /BS << \eq@BS\space >>
+        /MK << \eq@BC\space\eq@BG\space
+                /CA (\eq@CA) /RC (\eq@RC) /AC (\eq@AC) >>
+        /DA (\eq@DA)
+        /A
+        <<
+            /S /JavaScript
+            /JS (ProcessIt = false;
+                this.resetForm(new Array("\oField","tally.\oField"));\jsR
+                this.getField("\oField").strokeColor=\eqDefaultColor;
+                ProcessIt=true;)
+        >>
+    }%
+    \centerWidget\eq@rectH\leavevmode
+    \eq@sqClearButton@driver
+}
+\newcommand\minQuizResp{lowThreshold}
+\newcommand\PTs[1]
+{%
+    \gdef\eq@PTs{#1}\ifx\eq@PTs\@empty\gdef\eq@PTs{1}\fi
+    \global\let\eqPTs=\eq@PTs\global\let\eq@PTs=\@empty
+    \PTs@Hook
+}
+\newcommand\PTsHook[1]{\def\PTs@Hook{#1}}
+\let\PTs@Hook=\@empty
+\let\eq@PTs=\@empty
+\newcommand\eqGradeScale{"A",[90, 100],"B",[80,90],"C",[70,80],"D",[60,70],"F",[0,60]}
+\newcommand\ScoreField[2][]
+{%
+    \medskip\begingroup
+    \def\Fld@name{ScoreField.#2}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \def\eq@rawPDF{}%
+    \@eqBC{1 0 0}\def\eq@BG{}\def\eq@BS{/S /N}%
+    \def\eq@DV{\eqScore}\def\eq@V{\eqScore}%
+    \def\eq@rectW{\SFW}\def\eq@rectH{\DefaultHeightOfWidget}%
+    \def\eq@Ff{/Ff 1}%\def\eq@F{4}%
+    \noindent\eq@setWidgetProps\eq@TextField[#1]%
+}
+\newcommand\GradeField[2][]
+{%
+    \medskip\begingroup
+    \def\Fld@name{GradeField.#2}%
+    \@eqtextColor{0 0 1}\def\eq@rawPDF{}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf \eq@textColor}%
+    \@eqBC{1 0 0}\@eqBG{1 1 1}\def\eq@BS{/S /N}%
+    \def\eq@Ff{/Ff 1}\@eqQ{1}%\def\eq@F{4}%
+    \def\eq@rectW{20bp}\def\eq@rectH{\DefaultHeightOfWidget}%
+    \noindent\eq@setWidgetProps\eq@TextField[#1]%
+}
+\newcommand\AnswerField[2][]
+{%
+    \begingroup
+    \def\Fld@name{Ans.#2}%
+    \@eqBC{0 0 0}\def\eq@BS{/S /N}\def\eq@Ff{/Ff 1}%\def\eq@F{4}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \def\eq@rectW{\RBW}\def\eq@rectH{\DefaultHeightOfWidget}%
+    \noindent\eq@setWidgetProps\eq@TextField[#1]%
+}
+\newcommand\PointsField[2][]
+{%
+    \medskip\begingroup
+    \def\Fld@name{PointsField.#2}%
+    \def\eq@rawPDF{}\@eqBC{1 0 0}\def\eq@BG{}\def\eq@BS{/S /N}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \def\eq@rectW{\SFW}\def\eq@rectH{\DefaultHeightOfWidget}%
+    \def\eq@Ff{/Ff 1}%\def\eq@F{4}%
+    \noindent\eq@setWidgetProps\eq@TextField[#1]%
+}
+\newcommand\PercentField[2][]
+{%
+    \medskip\begingroup
+    \def\Fld@name{PercentField.#2}%
+    \def\eq@rawPDF{}\@eqBC{1 0 0}\def\eq@BG{}\def\eq@BS{/S /N}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \def\eq@Ff{/Ff 1}%\def\eq@F{4}%
+    \def\eq@rectW{\SFW}\def\eq@rectH{\DefaultHeightOfWidget}%
+    \noindent\eq@setWidgetProps\eq@TextField[#1]%
+}
+\newcommand\RestoreScoreField
+{%
+    \global\let\eqScore=\eq@Score
+    \global\let\eqOutOf=\eq@OutOf
+}
+\def\eq@check{4}
+\def\eq@circle{l}
+\def\eq@cross{8}
+\def\eq@diamond{u}
+\def\eq@square{n}
+\def\eq@star{H}
+\def\symbolchoice#1{\expandafter\ifx\csname eq@#1\endcsname\relax
+   \typeout{exerquiz: `#1' is not an acceptable option
+   for \string\symbolechoice, inserting default, `check'.}
+   \xdef\symbol@choice{\eq@check}\else
+   \xdef\symbol@choice{\csname eq@#1\endcsname}\fi}
+\symbolchoice{check}
+\newcommand\checkColor{["RGB", 0, .6, 0]}
+\newcommand\crossColor{color.red}
+\newcommand\correctColor{["RGB", 0, .6, 0]} % same as webgreen
+\newcommand\wrongColor{color.red}
+\newcommand\eqDefaultColor{color.black}
+\newcommand\solutionColor[1]{\def\solution@Color{/BC [#1]}}
+\def\solution@Color{/BC [0 .6 0]}
+\newcommand\eqButton[2][]
+{%
+    \medskip\begingroup
+    \def\Fld@name{correct.#2}%
+    \def\eq@CA{\eq@local@CA}%
+    \def\eq@RC{\eq@local@RC}%
+    \def\eq@AC{\eq@local@AC}%
+    \@eqFf{65536}\@eqH{P}%
+    \@eqBC{1 0 0}\@eqBG{.7529 .7529 .7529}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \def\eq@BS{/W 1 /S /B}%
+    \def\eq@rectH{\DefaultHeightOfWidget}%
+    \let\eq@rectW=\@empty
+    \@eqrawPDF{%
+        \ifeq@nocorrections\else
+        /A << /S /JavaScript /JS (if (isEndQuizPushed("#2"))\jsR\jsT
+                    correctQuiz("#2"); ) >>
+        \fi%
+    }%
+    \noindent\eq@setButtonProps\eq@Button@driver[#1]%
+}
+\newcommand\eq@BeginQuizButton[1][]
+{%
+    \begingroup
+    \def\eq@CA{\bqlabel}\def\eq@RC{\bqlabel}\def\eq@AC{\bqlabel}%
+    \@eqBC{1 0 0}\@eqBG{.7529 .7529 .7529}\def\eq@BS{/W 1 /S /B}%
+    \def\eq@rectH{\DefaultHeightOfWidget}\let\eq@rectW=\@empty
+    \def\commonFieldCode{%
+        /Subtype /Widget
+        /T (beginQuiz.\curr@quiz)
+        /FT /Btn
+        /Ff  65536   % 16#10000 = 65536 \FfPushButton
+        /H /P /F 4
+        /BS << \eq@BS >>
+        /MK << \eq@BC\space\eq@BG\space
+                /CA (\eq@CA) /RC (\eq@RC) /AC (\eq@AC) >>
+        /DA (\eq@DA)
+        /A << /S /JavaScript /JS (%
+            \@priorInitQuiz
+            \@initQuiz
+            \@postInitQuiz) >>
+    }%
+    \noindent\eq@setButtonProps\eq@bqButton[#1]%
+}
+\let\eq@submitURL=\@empty
+\let\eq@insertHiddenFields=\@empty
+\newcommand\eq@EndQuizButton[1][]
+{%
+    \begingroup
+    \def\eq@CA{\eqlabel}\def\eq@RC{\eqlabel}\def\eq@AC{\eqlabel}%
+    \@eqBC{1 0 0}\@eqBG{.7529 .7529 .7529}\def\eq@BS{/W 1  /S /B}%
+    \def\eq@rectH{\DefaultHeightOfWidget}\let\eq@rectW=\@empty
+    \def\commonFieldCode
+    {%
+        /Subtype /Widget
+        /T (endQuiz.\curr@quiz)
+        /FT /Btn
+        /Ff  65536   % 16#10000 = 65536 \FfPushButton
+        /H /P /F 4
+        /BS << \eq@BS >>
+        /MK << \eq@BC\space\eq@BG\space
+                /CA (\eq@CA) /RC (\eq@RC) /AC (\eq@AC) >>
+        /DA (\eq@DA)
+        /A <<
+            /S /JavaScript /JS
+            (if (!isQuizInitialized("\curr@quiz"))\jsR\jsT
+                app.alert(InitMsg("\bqlabelISO"),3);\jsR
+            else {\jsR\jsT
+                if (\minQuizResp(\thequestionno)) {\jsR\jsT\jsT
+                    DisplayQuizResults("\curr@quiz",\theeqpointvalue,\thequestionno);\jsR\jsT\jsT
+                    \eq@submitURL
+                    resetQuiz("\curr@quiz");\jsR\jsT
+                }\jsR
+                })
+            >>
+    }%
+    \ifx\eq@CGI\@empty
+        \let\eq@submitURL=\@empty
+        \let\eq@insertHiddenFields=\@empty
+    \fi
+    \noindent\eq@setButtonProps\eq@eqButton[#1]%
+}
+%% A macro to interchange two arguments, used in parsing the
+%% \texttt{quiz} environments arguments.
+%%    \begin{macrocode}
+%%    \end{macrocode}
+\newlength\aboveanswersSkip
+\setlength\aboveanswersSkip{3pt}
+\let\q@hwdest=\@empty % hard-wired destination
+\newcommand\answers@q{\@ifnextchar[{\answers@@q}%
+    {\@ifstar{\answers@@q[\curr@quiz.\thequestionno]}{\answers@@q[]}}}
+\def\answers@@q[#1]#2%
+{%
+    \addtocounter{eqpointvalue}{\eqPTs}%
+        \ifx\q@hwdest\@empty
+            \xdef\@qzsolndest{#1}%
+        \else
+            \gdef\@qzsolndest{\q@hwdest}%
+        \fi
+    \ifx#21\expandafter\answers@q@list\else
+    \expandafter\answers@q@tabular\fi{#2}%
+}
+\def\Ans@q@list#1{%
+    \stepcounter{quizno}\xdef\Ans@choice{#1}\item\relax
+}
+\newenvironment{answers@q@list}[1]
+{%
+    \let\endanswers=\endanswers@q@list
+    \ifx\Ans\Ans@l
+    \let\Ans@q@list@driver=\Ans@@l
+    %\let\Ans@q@list@driver=\Ans@l@driver
+    \else
+    \let\Ans@q@list@driver=\Ans@@f
+    %\let\Ans@q@list@driver=\Ans@f@driver
+    \fi
+    \begin{list}{\strut\Ans@q@list@driver\ }
+    {
+        \usecounter{partno}%
+        \ifx\Ans\Ans@l
+        \settowidth{\labelwidth}{\normalsize\normalfont(d)\ }%
+        \settowidth{\eq@tmpdima}{\normalsize\normalfont(d)}%
+        \else
+        \settowidth{\labelwidth}{\normalsize\normalfont\kern\RadioFieldSize\ }%
+        \fi
+        \setlength{\parsep}{0pt}\setlength{\itemindent}{0pt}%
+        \setlength{\listparindent}{\parindent}
+        \setlength{\leftmargin}{\labelwidth}%
+        \setlength{\labelsep}{0pt}
+        \def\Ans{\Ans@q@list}%
+        %\def\Ans{\item\relax\eq@Ans}%
+    }%
+}{\end{list}\setcounter{quizno}{0}}
+\def\answers@q@tabular#1{%
+    \vskip\aboveanswersSkip\noindent\tabcolsep=0pt
+    \eq@tmpdima=\linewidth \advance\eq@tmpdima-\leftskip \divide\eq@tmpdima by#1
+    \let\endanswers=\endanswers@q@tabular
+    \begin{tabular}{*{#1}{p{\eq@tmpdima}}}%
+}
+\def\endanswers@q@tabular{\end{tabular}\setcounter{quizno}{0}}
+\def\q@priorhook{\par\medskip}
+\newcommand\quiztype[1]{\def\@quiztype{#1}}\let\@quiztype=\@empty
+\newcommand\defaultquiztype{\let\@quiztype=\@empty}
+\def\quiz{\@ifstar{\@quiz*f}{\@quiz*l}}
+\def\@quiz*#1#2
+{
+    \begingroup
+    \global\let\eqQuizType=q\tabcolsep=0pt
+    \gdef\eqPTs{1}\gdef\quiz@total{#2}\gdef\curr@quiz{#2}\gdef\currQuiz{#2}%
+    \xdef\currQuizStartPage{\thepage}%
+    \ifx\@quiztype\@empty
+        \def\@@quiztype{#1}%
+    \else
+        \edef\@@quiztype{\@quiztype}%
+    \fi
+    \expandafter\let\expandafter\Ans\expandafter=\csname Ans@\@@quiztype\endcsname
+    \let\@qzsolndest=\@empty
+    \let\answers=\answers@q\let\endanswers=\endanswers@q
+    \let\solution=\solution@sq \let\endsolution=\endsolution@sq
+    \q@priorhook\eq@beginQuiz\space
+}
+\def\endquiz
+{
+    \eq@endQuiz
+    \global\let\bqlabel=\eq@bqlabel % reset beginning label to default
+    \global\let\eqlabel=\eq@eqlabel % reset ending label to default
+    \global\let\bqlabelISO=\eq@bqlabelISO
+    \endgroup
+}
+\newcommand\eq@beginQuiz{\eq@BeginQuizLink}
+\newcommand\useBeginQuizButton[1][]{\renewcommand\eq@beginQuiz{\eq@BeginQuizButton[#1]}}
+\newcommand\useEndQuizButton[1][]{\renewcommand\eq@endQuiz{\eq@EndQuizButton[#1]}}
+\newcommand\useBeginQuizLink{\renewcommand\eq@beginQuiz{\eq@BeginQuizLink}}
+\newcommand\useEndQuizLink{\renewcommand\eq@endQuiz{\eq@EndQuizLink}}
+\newcommand\@initQuiz{InitializeQuiz("\curr@quiz",\ifeq@nocorrections0\else1\fi);\jsR}
+\newcommand\@priorInitQuiz{}
+\newcommand\@postInitQuiz{}
+\def\eq@BeginQuizLink
+{%
+    \begingroup
+    \def\commonFieldCode{/S /JavaScript /JS (%
+      \@priorInitQuiz
+      \@initQuiz
+      \@postInitQuiz)}%
+    \eq@BeginQuizLink@driver
+}
+\newcommand\eq@endQuiz{\eq@EndQuizLink}
+\def\eq@EndQuizLink
+{%
+    \begingroup
+    \def\commonFieldCode{%
+        /S /JavaScript /JS
+        (if (!isQuizInitialized("\curr@quiz"))\jsR\jsT
+            app.alert(InitMsg("\bqlabelISO"),3);\jsR
+        else {\jsR\jsT
+            if (\minQuizResp(\thequestionno)) {\jsR\jsT\jsT
+                DisplayQuizResults("\curr@quiz",\theeqpointvalue,\thequestionno);\jsR\jsT\jsT
+                \eq@submitURL
+                resetQuiz("\curr@quiz");\jsR\jsT
+            }\jsR
+            })}%
+    \ifx\eq@CGI\@empty
+        \let\eq@submitURL=\@empty
+        \let\eq@insertHiddenFields=\@empty
+    \fi
+    \eq@EndQuizLink@driver
+}
+\newcommand\databaseName[1]{\def\db@Name{#1}}\def\db@Name{}
+\newcommand\tableName[1]{\def\db@Table{#1}}\def\db@Table{}
+\newcommand\eqCGI[1]{\def\eq@CGI{#1}}\def\eq@CGI{}
+\newcommand\eqSubmit[3]{\eqCGI{"#1"}\databaseName{#2}\tableName{#3}}
+\LangRedefinitions
+%% MCD's Extra code
+\newcommand\CorrAnsButtons[1][]
+{%
+    \begingroup
+    \def\eq@CA{\eq@local@CorrAnsButton}%
+    \let\eq@RC=\eq@CA\let\eq@AC=\eq@CA
+    \@eqBC{0 0 0}\@eqBG{.7529 .7529 .7529}\def\eq@BS{/W 1 /S /N}%
+    \def\eq@DA{\eq@textFont\space\eq@textSize\space Tf 0 g}%
+    \def\eq@rectH{\DefaultHeightOfWidget}\let\eq@rectW=\@empty
+    \ifx\eqQuizType q\def\Fld@name{corr.\curr@quiz.\thequestionno}%
+    \else\def\Fld@name{corr.\oField.\thequestionno}\fi
+    \noindent\eq@setButtonProps\eq@CorrAnsButtons[#1]%
+}
+\def\eq@CorrAnsButtons#1{%
+    \def\commonFieldCode{%
+         /Subtype /Widget
+         /T (\Fld@name)
+         /FT /Btn
+         /Ff  65540    %\FfNoExport \FfPushButton or
+         /H /P
+         \ifx\eqQuizType q/F 6\else/F 4\fi
+         /BS << \eq@BS\space >>
+         /MK << \ifx\@qzsolndest\@empty\eq@BC\else\solution@Color\fi\space
+                  \eq@BG\space  /CA (\eq@CA) /RC (\eq@RC) /AC (\eq@AC)
+              >>
+         /DA (\eq@DA)
+         \ifx\eqQuizType q%
+         /A  << /S /JavaScript
+                  /JS (%
+                       \ifx\@qzsolndest\@empty\else
+                       if (event.shift)\jsR\jsT
+                       this.gotoNamedDest("\@qzsolndest");\jsR
+                       else\jsR\jsT
+                       \fi
+                       DisplayAnswer("Ans.\curr@quiz","#1"))
+              >>
+         \else
+         /A  << /S /JavaScript
+                  /JS (%
+                       \ifx\@qzsolndest\@empty\else
+                       if (event.shift)\jsR\jsT
+                       this.gotoNamedDest("\@qzsolndest");\jsR
+                       else\jsR\jsT
+                       \fi
+                       #1)
+              >>
+         \fi
+    }%
+    \centerWidget\eq@rectH\leavevmode
+    \eq@CorrAnsButton@driver
+}
+
+%% End of MCD's extra code
+\input{\eq@drivercode}
+\endinput
+%%
+%% End of file `exerquiz.sty'.

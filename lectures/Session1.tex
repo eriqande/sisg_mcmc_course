@@ -1,0 +1,504 @@
+\input{preamble.tex}\rhead{Session 1 - \thepage}
+
+\section*{\hfil Personal Probability}
+
+If I take a shuffled pack of cards, what is the probability
+that the top card is the Ace of Spades? 
+
+Are you sure?
+
+What would change your mind?
+
+\es\bs
+
+\section*{\hfil Personal Probability}
+
+If I toss a coin 10 times, and see 0 heads, what is your estimate
+for the long-run probability of a head?
+
+What if I toss a coin once, and see 0 heads?
+
+\es\bs
+
+\section*{\hfil Personal Probability}
+
+In Classical statistics, probability is treated as a way of stating
+limiting long-run frequencies of independent events occuring.
+
+In Bayesian statistics, probability is treated as a way ({\it the} way)
+of expressing uncertainty about unknown quantities.
+
+This view is more flexible, since it allows one to use
+probability in treating uncertain events of many different kinds.
+For example, what is the probability 
+that it will rain tomorrow? That Brazil will win the World Cup in 2014?
+That Monrovia is the capital of Liberia?
+
+Uncertainty is, intrinsically, personal. Individuals may differ in their uncertainty, and therefore
+in their personal probabilities.   For this reason personal probabilities are also
+referred to as ``subjective probabilities." 
+
+\es\bs
+
+\section*{Personal Probability: Underlying Theory}
+
+The theory underlying personal probability is too vast for us to
+do justice here.
+
+Fortunately you don't need to know it to apply or understand much of Bayesian statistics
+(although it helps).
+
+Here's a one-line summary: ``In the face of uncertainty, a logical person should
+act as if they are assigning probabilities to uncertain events, losses to outcomes,
+and act so as to minimize their expected loss." 
+
+And if I'm allowed another line: ``Probabilities of uncertain events should be updated in the light
+of new information, using Bayes Theorem".
+
+For more info (non-math): Lindley, ``Understanding Uncertainty".
+
+
+
+\es\bs
+
+
+\section*{\hfil Classical Inference\hfil}
+
+Probability model $p\left( {\left. y \right|\theta } \right)$
+ for data $y = \left( {y_1 , \ldots ,y_n } \right)$.
+
+$\theta $ a vector of parameters {\em assumed fixed but unknown}.
+
+ Statistical inference is concerned with estimating the value of $\theta $
+ from the data $y$.
+
+Statistical procedure such as maximum likelihood estimation (MLE) provides
+estimate $\hat \theta$  of $\theta$  as a function of $y$.
+
+MLE is the value of $\theta $ which maximises $p\left( {\left. y
+\right|\theta } \right)$, regarded as a function of $\theta $
+ (the likelihood function).
+    \es \bs
+
+{\em Example: Estimating population allele frequency}  
+
+Suppose $n$ diploid individuals sampled from a population, typed
+at a locus with two alleles (A,a). $y$ = number of A alleles observed. Want
+to estimate $\theta$, frequency of $A$ allele.
+
+Model the alleles as being independent draws from $\Pr(A) = \theta$ (Hardy Weinberg Equilibrium).
+
+$$L(\theta) = p\left( {\left. y \right|\theta } \right) = \left( {\begin{array}{*{20}c}
+   2n  \\
+   y  \\
+\end{array}} \right)\theta ^y \left( {1 - \theta } \right)^{2n - y}
+,\qquad   y = 0, 1,\ldots, 2n$$
+
+\begin{equation*}
+\hat \theta  = y/2n
+\end{equation*}
+
+Uncertainty (eg confidence intervals) estimated from sampling distribution of $\hat \theta$.
+    \es\bs
+
+\section*{\hfil Bayesian Inference}
+
+In Bayesian inference, unknown parameters $\theta $
+ are regarded as random variables rather than fixed but unknown quantities.
+
+Prior knowledge about $\theta $
+ expressed by a ``prior" probability distribution $p\left( \theta  \right)$.
+
+Information in observed data $y$ expressed via the Likelihood function
+$L(\theta) = p\left( {\left. y \right|\theta } \right)$.
+
+Two sources of information are combined using Bayes Theorem (or ``Bayes Rule"):
+\begin{equation*}
+p\left( {\left.
+\theta  \right|y} \right) = \frac{{p\left( {\left. y \right|\theta }
+\right)p\left( \theta \right)}}{{p\left( y \right)}} 
+\end{equation*}
+
+$p\left( {\left. \theta  \right|y} \right)$ called the ``posterior distribution" of
+$\theta $.
+
+\es\bs
+
+\section*{\hfil Bayes Rule: Derivation}
+
+The joint probability of $y$ and $\theta $
+ can be expressed as either
+$$p\left( {y,\theta } \right) = p\left( {\left. y \right|\theta } \right)p\left( \theta
+\right)$$
+    or
+$$
+p\left( {\theta ,y} \right) = p\left( {\left. \theta  \right|y}
+\right)p\left( y \right).
+$$
+
+Equating these gives Bayes rule.
+
+    \es\bs
+
+\es\bs
+\section*{Bayes Rule: Convenient Form}
+
+\begin{equation*}
+p\left( {\left.
+\theta  \right|y} \right) = \frac{{p\left( {\left. y \right|\theta }
+\right)p\left( \theta \right)}}{{p\left( y \right)}} 
+\end{equation*}
+
+$$\mbox{posterior} \propto \mbox{likelihood} \times \mbox{prior}.$$
+ \es\bs
+
+{\em Example: Estimating allele frequency} 
+
+ $n$ diploid individuals sampled from a population, typed
+at a locus with two alleles (A,a). $y$ = number of A alleles. Want
+to estimate $\theta$, frequency of $A$ allele.
+
+$$\mbox{posterior} \propto \mbox{likelihood} \times \mbox{prior}.$$
+
+Likelihood: as before (Hardy--Weinberg Equilibrium).
+
+Prior: For parameters like an allele frequency, constrained to lie in $[0,1)$, a convenient prior is
+the beta distribution: $\theta \sim \mbox{Beta}\left( {\alpha ,\beta }\right)$, with density
+$$p\left( \theta ; \alpha, \beta \right) = \frac{{\Gamma
+\left( {\alpha  + \beta } \right)}}{{\Gamma \left( \alpha  \right)\Gamma
+\left( \beta  \right)}}\theta ^{\alpha  - 1} \left( {1 - \theta }
+\right)^{\beta  - 1} ,\quad  0 < \theta  < 1; \alpha>0; \beta>0$$
+
+\section*{Beta Distribution: summary}
+
+$$p(\theta; \alpha, \beta) \propto \theta^{\alpha-1} (1-\theta)^{\beta-1}$$
+
+ $E\left( \theta \right) = \frac{\alpha }{{\alpha  + \beta }}.$
+
+ ${\mathop{\rm var}} \left( \theta  \right) = \frac{{\alpha \beta }}{{\left( {\alpha  + \beta } \right)^2 \left( {\alpha  + \beta  + 1} \right)}}.$
+
+Large values of $\alpha,\beta$ give small variance: $\theta$ becomes peaked about its expectation.
+
+Small values of $\alpha, \beta$ ($<1$) give peaks at 0,1.
+
+$\alpha=\beta=1$ gives uniform distribution on [0,1).
+
+\es\bs
+%\centerline{\resizebox{0.75\textwidth}{!}{
+	\begin{center}
+		\includegraphics[width=.7\textwidth]{figures/betaplot}
+	\end{center}
+    \es\bs
+
+{\em Continuing with our example:}
+
+$$\mbox{posterior} \propto \mbox{likelihood} \times \mbox{prior}.$$
+
+$$p\left( {\left. y \right|\theta }
+\right) \propto \theta ^y \left( {1 - \theta } \right)^{2n - y} $$
+
+$$p\left( \theta  \right) \propto \theta ^{\alpha  - 1} \left( {1 - \theta }
+\right)^{\beta  - 1}.$$
+
+The posterior is  
+$$p\left( {\left. \theta  \right|y} \right) \propto \theta ^{\alpha  + y - 1}
+\left( {1 - \theta } \right)^{\beta  + 2n - y - 1},$$
+ the beta distribution with parameters $\alpha  + y$
+ and $\beta  + 2n - y$.
+ 
+ $$\theta | y \sim \text{Be}(\alpha+y, \beta + 2n -y).$$
+
+\es\bs
+
+ \subsection*{Summarizing posteriors: Point Estimates}
+
+The posterior distribution of $\theta $ encapsulates our
+beliefs about $\theta $ after seeing the data (and in light of our prior beliefs). 
+
+It can be helpful to produce point estimates of $\theta$. 
+
+The Bayesian approach to this involves specifying a ``loss" function
+$L(\theta,\hat{\theta})$ that says how much you ``lose" by guessing
+$\hat{\theta}$ if the truth is $\theta$. Then choose the value of $\hat{\theta}$ that
+minimizes the (posterior) expected loss:
+$$E[L(\theta,\hat{\theta})] = \sum_t L(t,\hat{\theta}) p(\theta= t | y).$$
+[Note, for continuous parameters the sum is replaced by an integral].
+
+The estimate that minimizes this expected loss is called the {\it Bayes Estimate}.
+\es\bs
+
+{\color{section0}\em Example: Posterior mean}
+
+If the loss function is ``squared loss": $L(\theta,\hat{\theta}) = (\theta-\hat{\theta})^2$
+then the Bayes Estimate is the {\em posterior mean}:
+
+$$E( \theta |y ) = \sum_t t p(\theta=t  |y).$$
+
+In our allele frequency example, the posterior mean is
+$$E\left( {\left. \theta  \right|y} \right) = \frac{{\alpha  + y}}{{\alpha  + \beta  + 2n}}$$
+
+Compare with the prior mean $\frac{\alpha }{{\alpha  + \beta }}$
+ and the mle $\frac{y}{2n}.$
+    \es\bs
+
+{\color{section0}\em Example: Posterior mode}
+
+If the loss function is ``0-1 loss": 
+$$L(\theta,\hat{\theta}) = 0 \text{ if $\theta = \hat{\theta}$; 1 otherwise}$$
+then the Bayes Estimate is the {\em posterior mode} (the ``most
+likely'' posterior value).
+
+The mode of the $\mbox{Beta}\left( {\alpha ,\beta } \right)$
+ distribution is $\frac{{\alpha  - 1}}{{\alpha  + \beta  - 2}}$.
+    
+{\em Example}
+
+In our example the posterior mode is $\frac{{\alpha  + y - 1}}{{\alpha  +
+\beta  + 2n - 2}}$.
+
+So if $\alpha=\beta=1$, posterior mode is $\frac{y}{2n}$.
+
+So, with a uniform prior, the posterior mode = MLE. (Follows
+from posterior $\propto$ likelihood $\times$ prior.)
+    \es\bs
+    
+ \subsection*{A note about nuisance parameters}
+   
+  Consider an inference problem where you are interested
+   in $\theta$, and there is a nuisance parameter $\eta$. (e.g. estimating a normal
+   mean, with an unknown variance).
+   
+   The classical maximum likelihood approach maximizes the likelihood over both $\theta$ and $\eta$.
+    
+    The Bayesian approach is to compute the posterior $p(\theta,\eta  | y)$, and then to compute the
+    posterior for $\theta$ by integrating out $\eta$:
+    $$p(\theta | y) = \int p(\theta,\eta  | y) d\eta.$$ 
+    
+    You then use this ``marginal distribution" to get a point estimate of $\theta$ (e.g. posterior mean or mode.) Note that here a uniform prior on $(\theta,\eta)$ does not necessarily give posterior mode($\theta$) = mle.
+
+
+\subsection*{Summarizing Posterior: interval estimates}
+
+A $95\%$ ``credible interval" for $\theta$ is an interval $I$ with the property
+that $\Pr(\theta \in I | y) = 0.95$.
+
+Such intervals are most easily formed by taking the $2.5\%$ and $97.5\%$ percentiles of the posterior
+density. This yields a ``symmetric" or ``central" CI.
+
+An alternative (usually considered superior, but harder to do)
+is to the {\em highest posterior density} (HPD) region:
+\begin{itemize}
+\item[] The set of values of $\theta $
+ that contains $95\%$ of the posterior probability, and such that the density within the region is always higher than the density outside.
+\end{itemize}
+    \es\bs
+    
+{\color{section0}\em Bayesian vs frequentist intervals}
+
+ Strict interpretation of classical (frequentist) confidence interval is awkward:
+\begin{itemize}
+\item[] For {\em fixed} (unknown) parameter $\theta$, 95\% confidence limits are
+functions of the data $y$, say $a(y)$ and $b(y)$, satisfying
+$$P\left( {\left. {a\left( y \right) < \theta  < b\left( y \right)} \right|\theta } \right) = 0.95.$$
+
+Here $y$ is the random variable and we have to imagine infinite repetitions
+of the experiment to give meaning to the probability statement.
+\end{itemize}
+For the corresponding Bayesian credible interval, $\theta$ satisfies
+$$P\left( {\left. {a\left( y
+\right) < \theta  < b\left( y \right)} \right|y} \right) = 0.95$$ where
+$\theta $ is now the random variable.
+
+\es\bs
+
+\section*{\hfil Conjugate Priors}
+
+In our example, both the prior and posterior for $\theta$ were Beta
+distributions.
+
+This made for a particularly simple analysis.
+
+This property of a prior has a special name: the Beta distribution
+is the ``conjugate" prior for this problem (binomial sampling).
+
+Conjugate priors are often used, because of the simplicity they
+introduce. However, it is not necessary to restrict oneself to
+a conjugate prior.
+
+\es\bs
+
+\subsection*{Considerations for choice of Prior}
+
+Prior for $\theta $
+ should capture our knowledge before observing data.  Possible sources:
+\begin{itemize}
+    \item background scientific knowledge;
+    \item previous studies;
+    \item expert judgements (see e.g. O'Hagan, 1998, and other papers in the same
+issue).
+\end{itemize}
+
+\es\bs
+
+When ``testing" a large number of hypotheses, it can be helpful to think about how
+many total positive findings one might expect when trying to assess the prior probability that
+any one is true.
+
+{\it Example:} in ongoing genome-wide association studies, a million genetic variants (SNPs) across the genome may be tested for association with a complex disease (eg diabetes). 
+
+Perhaps tens or hundreds of them will actually be causally linked to the disease.
+
+Therefore a reasonable prior might be in the range $10/ 10^6$ to $100/10^6$.
+
+\es\bs
+
+{\it Example:} in a candidate gene study one might select, say, 10 genes to study in detail,
+to assess whether genetic variation in these genes are associated with disease. 
+
+Presumably the study would not have been done had it not been considered at least
+reasonably likely that one of the genes would be associated with the disease.
+
+Based on this, a prior probability of 1/10 for each gene containing genetic variation associated with the disease, might be reasonable.
+
+    \es\bs
+
+\subsection*{Example 2: Assignment Problem}
+
+Consider the problem of estimating the origin of an individual, based
+on genetic data. 
+
+One bi-allelic locus with alleles $A, a$.
+
+Allele frequencies of $A$ in two populations are $f_1$ and $f_2$.
+
+What is the probability that an individual with genotype $AA$ came
+from population 1 vs population 2?
+
+That is, what is $\Pr(\text{Pop 1} | AA)$?
+
+\es\bs
+We need a prior probability that the individual came from population 1 vs 2.
+
+Assume the two are equally likely {\it a priori}, so prior probability is 0.5.
+
+Then apply Bayes Theorem:
+
+$$\Pr(\text{Pop 1} | AA) \propto \Pr(AA | \text{Pop 1}) \Pr(\text{Pop 1}) = f_1^2 0.5$$
+
+$$\Pr(\text{Pop 2} | AA) \propto \Pr(AA | \text{Pop 2}) \Pr(\text{Pop 2}) = f_2^2 0.5$$
+
+These must sum to 1, so this gives us the constant of proportionality:
+
+$$\Pr(\text{Pop 1} | AA) = 0.5 f_1^2 / (0.5 f_1^2 + 0.5 f_2^2)$$
+$$\Pr(\text{Pop 2} | AA) = 0.5 f_2^2 / (0.5 f_1^2 + 0.5 f_2^2)$$
+
+\es\bs
+
+\subsection*{Example: Assignment Problem with estimated allele frequencies}
+
+Assume now that $f_1$ and $f_2$ are unknown, but
+are to be estimated from 10 ``reference" individuals sampled from each population.
+
+Suppose that in 10 individuals, we see 1 copy of A in population 1, and 0 copies of A
+in population 2. 
+
+What is the estimated probability that an AA individual came from population 1?
+
+Naive Frequentist Analysis: answer = ?
+
+Naive Bayes Analysis: answer = ?
+\es\bs
+
+\section*{\hfil Bayesian Inference: summary}
+
+Bayesian inference proceeds by
+\begin{enumerate}
+    \item specifying what is known about $\theta$ before obtaining the data as
+the prior $p\left( \theta \right)$;
+    \item collecting the data $y$ and
+specifying its distribution $p\left( {\left. y \right|\theta } \right)$ (or
+the likelihood function);
+    \item calculating the posterior $p\left( {\left.
+\theta \right|y} \right)$ from Bayes rule.
+\end{enumerate}
+
+%
+%\subsection*{Example: multiallelic loci}
+
+%Here we suppose we observe $n$
+% independent trials each of which has $p$
+% possible outcomes with associated probabilities
+%\[\theta  = (\theta _1 , \ldots ,\theta _p ).\]
+%Letting $y = (y_1 , \ldots ,y_p )$
+% denote the number of times each outcome is observed, we have
+%\begin{eqnarray*}
+%  y|\theta  &  \sim  & {\rm Multinomial}(n,\theta ) \cr
+%  p(y|\theta ) &  =  & \frac{{(\sum\nolimits_i  \,y_i )!}}{{\prod\nolimits_i  \,y_i !}}\prod\limits_i  \,\mathop {\theta _i }\nolimits^{y_i } ;\quad \quad \sum\limits_i  \,y_i  = n,\sum\limits_i  \,\theta _i  = 1
+%\end{eqnarray*}
+%\es\bs
+%Placing a Dirichlet prior on $\theta $
+% will give a posterior distribution for $\theta $
+% which is also Dirichlet.
+
+%If a-priori we assume
+%\[
+%\theta  \sim {\rm Dirichlet}(\alpha _{01} , \ldots ,\alpha _{0p}
+%);\quad \quad \alpha _{0i}  > 0
+%\]
+%then
+%\[
+%p(\theta ) \propto \prod\limits_i  \,\theta _i^{\alpha _{0i}  - 1}
+%\]
+%and hence
+%\[
+%p(\theta |y) \propto \prod\limits_i  \,\theta _i^{y_i  + \alpha
+%_{0i}  - 1}
+%\]
+%so that if we let $\alpha _{1i}  = \alpha _{0i}  + y_i $
+%\[
+%(\theta |y) \sim {\rm Dirichlet}(\alpha _{11} , \ldots ,\alpha
+%_{1p} ).
+%\]
+%\es
+%\bs
+%From the properties of the Dirichlet it is easy to show that the
+%marginal posterior distribution of each $\theta _i $
+% will be
+%\[
+%{\rm Beta}\left( {\alpha _{1i} ,\sum\limits_{j \ne i}  \,(\alpha
+%_{1j} )} \right)
+%\]
+%Hence,
+%\begin{eqnarray*}
+%  {\rm E}[\theta _i |y] &  =  & \mu _i  = \frac{{\alpha _{1i} }}{{\sum\nolimits_{j = 1}^p  \,\alpha _{1j} }}, \cr
+%  {\rm Var}[\theta _i |y] &  =  & \frac{{\alpha _{1i} (\sum\nolimits_{j \ne i}  \,\alpha _{1j} )}}{{(\sum\nolimits_{j = 1}^p  \,\alpha _{1j} )^2 (1 + \sum\nolimits_{j = 1}^p  \,\alpha _{1j} )}}.
+%\end{eqnarray*}
+%\es\bs
+%We can also show the correlation between $\theta _i $ and $\theta
+%_j $ is given by
+%\[
+%{\rm Corr}(\theta _i ,\theta _j ) =  - \sqrt {\left( {\frac{{\mu
+%_i }}{{1 - \mu _i }}} \right)\left( {\frac{{\mu _j }}{{1 - \mu _j
+%}}} \right)} .
+%\]
+
+%If any of these correlations are large looking at the marginal
+%distributions of $\theta _i $
+% and $\theta _j $
+% separately would be very misleading.
+%\es\bs
+%\subsection*{Summary}
+
+%In multiparameter problems our aim is still to obtain the
+%posterior distribution of the (vector) parameter using Bayes' rule
+%to combine the prior distribution with the likelihood. This leads
+%to the need to perform lots of integrations which cannot be done
+%analytically except in some special cases. In general we will need
+%to use numerical integration methods or avoid the integrations
+%entirely by using simulation methods (see later).
+
+%Characterising the information contained in a multidimensional
+%distribution is difficult, so we usually resort to low-dimensional
+%(i.e. 1-D) marginal distributions as summaries although this can
+%be misleading.
+\end{document}
