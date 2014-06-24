@@ -5,6 +5,9 @@
 
 
 
+
+
+
 function usage {
       echo Syntax:
       echo "  $(basename $0)  NameOfOutputPDF_File"
@@ -46,7 +49,9 @@ FILES=" Overview.pdf Session1.pdf Session2.pdf Session3.pdf Session4.pdf Session
  Session6.pdf Session7.pdf Session8.pdf Session9.pdf Session10.pdf References.pdf "
 
 
-pdftk $FILES cat output $OUTFILE
+# this uses some stuff on Mac's Mavericks operating system
+# since pdftk is busted now...
+"/System/Library/Automator/Combine PDF Pages.action/Contents/Resources/join.py" -o $OUTFILE $FILES 
 
 
 
