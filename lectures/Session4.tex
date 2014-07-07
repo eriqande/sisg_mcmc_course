@@ -165,7 +165,7 @@ R=\min\biggr\{1,
 \]
 If you accept the proposed value, set the current value to the proposed value.  Otherwise leave the current values unchanged.
 
-\fbox{Computer Demo}
+\fbox{Computer Demo: {\tt inbred\_p -n 30 10 10} {\small (starts on ``Jointly'' (j))}}
 
 
 \newslide{Component-wise Metropolis Hastings Sampler  }
@@ -215,7 +215,7 @@ Some very important points:
 \item Neither step~1 nor step~2 of the sweep creates an irreducible chain (obviously, if you never update $p$, for example, your chain could never reach every possible value of $p$).
 \item However, taken together, steps~1 and~2 create an irreducible chain.
 \end{itemize}
-\fbox{Computer Demo}
+\fbox{Computer Demo: {\tt inbred\_p} {\small (Component-wise using (c) from info window)}}
 
 
 \newslide{Simple Component-wise M-H Sampler for $p$ and $f$, cont'd}
@@ -359,7 +359,7 @@ For $i$ in $1,\ldots,n$:
 
 Note the cancellations in all these Hastings Ratios.
 
-\fbox{Computer Demo}~\footnote{which will segue into Gibbs sampling}
+\fbox{Computer Demo: {\tt inbred\_p} {\small (``Silly'' using (S), (f), and (p))}}~\footnote{which will segue into Gibbs sampling}
 
 \newslide{Gibbs Sampling}
 Gibbs sampling is a special case of the component-wise M-H sampler in which the proposal distribution is the {\em full conditional distribution}.
@@ -402,12 +402,13 @@ The $P(\textcolor{Green}{\bm{U}}|\textcolor{Orange}{f})$ portion of the joint de
 
 
 
+
 \newslide{A Directed Graphical View of The Model\ldots}
 \enlargethispage*{1000pt}
 \begin{center}
 \includegraphics[width=.6\textwidth]{illus/InbreedingDAG.pdf}
 \end{center}
-\ldots makes it fairly easy to envision how Gibbs updates for \textcolor{Violet}{$p$} and \textcolor{Green}{$\bm{U}$} would proceed.  \hfill\fbox{Computer Demo}
+\ldots makes it fairly easy to envision how Gibbs updates for \textcolor{Violet}{$p$} and \textcolor{Green}{$\bm{U}$} would proceed.  \hfill\fbox{Computer Demo: {\tt inbred\_p} {\small (``Gibbs'' using (g))}}
 
 
 
@@ -437,7 +438,7 @@ We could have attributed the departure from Hardy-Weinberg proportions to a mixt
 
 This is, in fact, the {\em structure} model with no admixture, $K=2$, and a single locus.
 
-Gibbs sampling is straightforward\ldots\hfill\fbox{Computer Demo}
+Gibbs sampling is straightforward\ldots\hfill\fbox{{\footnotesize Computer Demo:} {\tiny {\tt newhybs}  via {\tt RunNewHybs.sh}}}
 
 \newslide{Wrap-Up}
 Main Points:
