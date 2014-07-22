@@ -1,7 +1,7 @@
 # Additional Structure Fun
 
 ## Introduction
-Here we do a few maneuvers to further convince ourself that the "Model with prior population information" should only be used when you have very strong reasons to believe that the different areas you have sampled truly represent different subpopulations and that given that you wish to infer migrants.  It is not intended to assess how well you can partition individuals into the different subpopulations.  The reason for this is that the MIGPRIOR is quite a strong prior.  It says that //a priori// you expect that with probability 1-MIGPRIOR each individual in a designated subpopulation has all of its ancestry from that subpopulation.  As a thought exercise, think about what would happen if you have sampled individuals from 5 populations, you set MIGPRIOR to .01, but then you don't have any genetic data on the individuals...
+Here we do a few maneuvers to further convince ourself that the "Model with prior population information" should only be used when you have very strong reasons to believe that the different areas you have sampled truly represent different subpopulations and that given that you wish to infer migrants.  It is not intended to assess how well you can partition individuals into the different subpopulations.  The reason for this is that the MIGPRIOR is quite a strong prior.  It says that *a priori* you expect that with probability 1 minus MIGPRIOR each individual in a designated subpopulation has all of its ancestry from that subpopulation.  As a thought exercise, think about what would happen if you have sampled individuals from 5 populations, you set MIGPRIOR to 0.01, but then you don't have any genetic data on the individuals...
 
 well, in that case the likelihood does not alter the prior and structure would tell you that each individual in each population, on average had 99% of its ancestry from that subpopulation.  It should be clear that at this point you would not want to jump up and raise your arms and say, "Victory! I have found population structure!!"
 
@@ -176,14 +176,14 @@ Samp_150     3    3          7 2   10 7   6 2   0 0   6 6   8 2   11 1   7 10   
 
 Note that alleles are named starting at 0 and there is no missing data.  So, when you run this in structure, you should set the missing data indicator to -9 and all will be fine.  (i.e. don't set the missing data value to 0)
 
-=====Getting It Into Structure=====
+## Getting It Into Structure
 Make a new structure project.  Then include `NoStructure.txt`.  Note that it has 150 individuals and 18 loci.  There is no row of locus names.  Tell structure that the file includes:
   -Individual ID column
   -Putative pop origin column
   -A sampling location info column
 (The latter two columns are identical, we just want both in there since we will do two different types of analyses here.)
 
-=====A Prior Pop Info Run=====
+## A Prior Pop Info Run
 Make a parameter set called PriorPop with these (or similar) attributes:
 ```
 ====================  Parameter Set: PriorPop  ====================     
