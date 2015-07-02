@@ -1,0 +1,250 @@
+---
+title: "scot-cats"
+author: "Eric C. Anderson"
+date: "July 2, 2015"
+output: html_document
+---
+
+```{r, setup, echo=FALSE}
+library(knitr)
+opts_knit$set(root.dir = "~/Desktop/scot-cats/PlainPars")
+opts_chunk$set(comment = NA)
+```
+
+
+This document shows how to use the R package `Rrunstruct` to use R to conduct multiple `structure`
+runs based on the parameters chosen for any parameter set specified in the `structure` front-end.
+It goes hand in hand with the computer practical in the SISG MCMC course. Before you follow this
+document, you will want to have completed the first part of the computer practical and have done
+at least one run of `structure` using the front-end.
+
+The goal here is to see how to use some R tools to parse `structure` output to be able to quickly
+assess whether multiple runs of `structure's` MCMC algorithm give similar results.  Along the way
+we will encounter a couple of challenges that arise, most notably the issue that the labels of
+the clusters may not be concordant across multiple `structure` runs.  We might also take some time
+to look at some of the tools in today's Hadley Wickham R ecosystem (`dplyr`, `ggplot2`, `tidyr`, `stringr`, etc.) that are helpful.
+
+Before we can begin there is some setup you might have to do.  
+
+
+## Setup
+You will need to install the package `Rrunstruct`.  Because the package includes the `structure`
+executable file, it is not available on CRAN, but can be installed from GitHub.  Doing so
+requires the `devtools` package.
+```{r, eval=FALSE}
+devtools::install_github("eriqande/Rrunstruct")
+```
+If that doesn't work, it likely is because you need to get the `devtools` package and then try again:
+```{r, eval=FALSE}
+installed.packages("devtools")
+devtools::install_github("eriqande/Rrunstruct")
+```
+
+
+
+
+## Running Structure
+To run `structure` you just need to:
+
+1. load the package
+2. set your R working directory to the directory inside the `structure` project that holds the
+parameter set you want to use.  On my computer that is `~/Desktop/scot-cats/PlainPars`.  On 
+your computer, that path will have to be set accordingly.
+3. Use the function`structure_runs()`, telling it where to put the output, what K values to use, how
+many reps for each, and the seed to use for the first run (this gets incremented by one for each
+successive run).
+```{r, message=FALSE}
+library(Rrunstruct)
+```
+```{r}
+setwd("~/Desktop/scot-cats/PlainPars")  # you've got to change this for your own computer!
+```
+
+```{r, eval=FALSE}
+structure_runs(outdir = "struct-runs-from-r-1", K = 1:4, reps = 3, seed = 5566)
+```
+
+Once those runs have completed, you can take a look at what the outputs look like.  All the output
+files should be in the directory `struct-runs-from-r-1` that is inside the `PlainPars` directory.
+Let's see what they look like:
+```{r}
+dir(path = "struct-runs-from-r-1")
+```
+The naming convention is pretty simple, `*results*` are the files that structure spits out at
+the end of each run.  The `*stdout*` files store the stuff that the command line version of 
+structure spits out.  Let's have a look at the first couple lines of the trace files:
+```{r}
+cat(readLines("struct-runs-from-r-1/struct_stdout_K_3_rep_1")[1:50], sep = "\n")
+```
+
+And look at a bit of one of the result files.  Note that you are going to want to extract
+the "Inferred ancestry of individuals from this file"
+```{r, warning=FALSE}
+cat(readLines("struct-runs-from-r-1/struct_results_K_3_rep_1_f")[1:100], sep = "\n")
+```
+
+
+## Slurping up the Structure results
+
+Although R's syntax for text processing is perhaps not as compact as `awk` or `sed`, and it might be slower
+than `python` it has nice facilities for parsing text files.  The package `stringr` used in combination with
+the function `readLines()` is particularly easy to use and helpful.  
+
+We won't go into the details now though.  Instead we have a single function that:
+
+1.  Reads in all the `stdout` and `results` files and wrangles them into long-format (tidy) data frames.
+2. Identifies the cluster that each individual has the highest mean posterior Q for from each run.
+3. For each rep determine the permutation of the cluster labels that makes the results the most congruent with
+the first rep.  (This is a lightweight version of what the program CLUMPP does)
+4. Creates columns in the data frame that have permuted versions of the cluster labels that can be used in plotting.
+
+If you want the details of all that, you can check the package out on GitHub.  I used the packages `tidyr` and `dplyr`
+extensively (but the code is still kind of ugly...).  
+
+Here we get all the output into a list of two data frames:
+```{r, message=FALSE, cache=TRUE}
+L <- read_and_process_structure_output("struct-runs-from-r-1")
+```
+
+And let's take a look at the tops of the two data frames in that list.  
+
+### Q values
+First, the estimated
+Q values from each individual
+```{r}
+L$q
+```
+The columns `K` and `Rep` just give the K-value assumed in the structure run, and which replicate
+the run was.  `Index` is just the numerical index of the individual, `Label` is the label given
+to the individual sample, `Miss` is the percentage of loci missing data in that individual, `Pop`
+is the putative popuation or sampling location of the individual (as given in the data input),
+`cluster` gives the cluster that the `probability` refers to.  `probability` is the posterior
+mean of the Q value for the given cluster.  `mp` is the number of the label permutation that makes
+the results of this replicate as congruent as possible with replicate #1.  Finally
+`cluster_relabeled` is the label of the cluster, once the clusters have been relabeled to be
+congruent with replicate #1.  We will explore that further.
+
+
+### Traces
+Here we look at the traces:
+```{r}
+L$traces
+```
+The columns `K`, `Rep`, and `mp` are as above.  `Sweep` tells us which sweep the row refers
+to.  It runs from 1 to 6000 in this case---it includes sweeps from the burn-in period. `variable`
+tells us what variable we are looking at.  Here, those are either "Alpha" (the $\alpha$ variable)
+or one of the $F$ parameters (i.e. F1, F2, etc).  `variables_relabeled` has the name of the
+variable after they have been relabeled to be (more or less) congruent with replicate 1. `value` is
+the value of that variable.
+
+## Plotting the traces
+Once structure's outputs are in this type of long-format data frame, it is relatively easy
+to plot and compare between runs.  
+
+### Alpha
+First we will plot the traces of $\alpha$ and the $F$ parameters and see how the compare
+across runs.  
+
+Here are the $\alpha$'s:
+```{r, fig.height=10, fig.width=14}
+ggplot(L$traces %>% filter(variable == "Alpha"), aes(x = Sweep, y = value)) +
+  geom_line(colour = "blue") +
+  facet_grid(K ~ Rep)
+```
+That is interesting.  Not surprisingly, when K is 1, $\alpha$ meanders all over because
+it is not really used in the model when K is 1, so there is nothing constraining it.  
+
+For $K>1$ the results look pretty similar between the reps.  But, let's focus on $K>1$:
+```{r, fig.height=10, fig.width=14}
+ggplot(L$traces %>% filter(variable == "Alpha", K != 1), aes(x = Sweep, y = value)) +
+  geom_line(colour = "blue") +
+  facet_grid(K ~ Rep)
+```
+
+### F's
+When we look at the values of F, we see the labeling issue:
+```{r, fig.height=10, fig.width=14}
+ggplot(L$traces %>% filter(str_detect(variable, "^F")), aes(x = Sweep, y = value, colour = variable)) +
+  geom_line() +
+  facet_grid(K ~ Rep)
+```
+
+When $K>1$ the colors don't match up because the clusters don't have the same name.  We can
+rectify that by using the relabeled version:
+```{r, fig.height=10, fig.width=14}
+ggplot(L$traces %>% filter(str_detect(variables_relabeled, "^F")), aes(x = Sweep, y = value, colour = variables_relabeled)) +
+  geom_line() +
+  facet_grid(K ~ Rep)
+```
+We see that the course of the F variables during MCMC looks similar between reps for K=1 and K=2
+but quite different between reps for K>2.  We contend that the runs for K>2 might have to be run
+for much longer (and even then they may not converge to the same place, reliably).
+
+## Plotting the Q values
+Often what we are really interested in are the Q values for different individuals.  It is thus
+important to assess how much those differ between runs.  One way to do that is to plot the 
+estimated Q values in each rep > 1 with those in the first rep.  To do that, we can add the 
+rep1 results (at each K) to the data frame of results:
+```{r}
+Qs <- L$q %>%
+  filter(Rep == 1) %>%  # get just the first rep
+  group_by(K, Index, cluster_relabeled) %>% # group by these to preserve the columns
+  transmute(rep1_cluster = cluster_relabeled, rep1_prob = probability) %>% # rename columns
+  ungroup %>%
+  inner_join(L$q) %>%  # slap those values back on the original data frame matching K and Rep
+  filter(Rep != 1) %>% # toss out the rows comparing Rep 1 to Rep 1
+  mutate(which_cluster = paste(rep1_cluster))  # name a new column with something better for the plot
+```
+Here is what that data frame looks like:
+```{r}
+Qs
+```
+And now it is easy to compare the Q values in each Rep after Rep 1 with the Q values in Rep 1:
+```{r, fig.height=10, fig.width=14}
+ggplot(Qs, aes(x = rep1_prob, y = probability, colour = which_cluster)) +
+  geom_point() +
+  facet_grid(K ~ Rep)
+```
+
+This is interesting as it shows that for K=2 the three runs all converged to pretty much the
+same Q values.  The "wiggle" off the $y=x$ line there is due to Monte Carlo variance, but not
+caused from the chains converging to very different parts of the space, as is clear what has
+happened for some of the replicates for K=3 and K=4.
+
+## Longer runs at K = 2
+Let's see if we can tighted up that Monte Carlo variance be doing longer runs.  I have made a
+new directory `LongerRun` with the `structure` GUI and set it up to to 5000 burn in and 45000
+sweeps after burn in.  Let's do 4 reps at K=2 to see how that works out.
+```{r, eval=FALSE}
+# do the runs
+setwd("~/Desktop/scot-cats/LongerRun")  # this must be changed on other computers
+structure_runs(outdir = "r-runs-2", K = 2, reps = 4, seed = 9876)
+```
+Then slurp up the results
+```{r, cache = TRUE}
+setwd("~/Desktop/scot-cats/LongerRun")  # this must be changed on other computers
+L2 <- read_and_process_structure_output("r-runs-2")
+```
+
+Then, compare rep 1 to the others:
+```{r}
+# format the data frame
+Qs2 <- L2$q %>%
+  filter(Rep == 1) %>%  # get just the first rep
+  group_by(K, Index, cluster_relabeled) %>% # group by these to preserve the columns
+  transmute(rep1_cluster = cluster_relabeled, rep1_prob = probability) %>% # rename columns
+  ungroup %>%
+  inner_join(L2$q) %>%  # slap those values back on the original data frame matching K and Rep
+  filter(Rep != 1) %>% # toss out the rows comparing Rep 1 to Rep 1
+  mutate(which_cluster = paste(rep1_cluster))  # name a new column with something better for the plot
+```
+
+```{r}
+# plot those up:
+```{r, fig.height=5, fig.width=14}
+ggplot(Qs2, aes(x = rep1_prob, y = probability, colour = which_cluster)) +
+  geom_point() +
+  facet_wrap( ~ Rep, ncol = 3)
+```
+
+Those look pretty concordant apart from a few individuals.
