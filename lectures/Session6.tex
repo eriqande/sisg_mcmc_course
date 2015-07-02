@@ -12,7 +12,8 @@ The goals of this practical session---Allow students to:
 \item Use the {\em structure} front end
 \item Understand how the structure front end prepares input files 
 \item Analyze the Scottish cats data
-\item Observe the output from {\em structure} which will be used later for convergence diagnostics
+\item Examine the output from {\em structure} to gain familiarity with visually assessing
+convergence of different MCMC chains.
 \end{itemize}
 
 \newslide{Structure data format}
@@ -22,6 +23,8 @@ The goals of this practical session---Allow students to:
 in multiple rows.  The cat data uses a single row for each individual.
 \item The first row holds the marker names (\eg{} ``fca8 fca23 \ldots").
 \item Each individual's row contains the individual's ID (in the first column---\eg{} ``Z12"), then an integer specifying its population or sampling location information (in the second column---\eg{} ``3").  The remaining columns are the genotypes (two columns for each locus, \eg{} ``123 143 \ldots").
+\item These are {\em microsatellite} genotypes.  Each diploid individual has two gene copies, and the different alleles are different lengths of simple repeat DNA segments between conserved primer regions.  
+\item Such data are not used extensively in human genetics any longer, but are still used in molecular ecology.  In this case they provide a compact data set that {\em structure} can analyze quickly enough to do multiple runs in the course of a short practical session.
 \item The first five lines of {\sl cats.dat} are below:
 \end{itemize} 
 {\footnotesize
@@ -46,7 +49,7 @@ $\bullet$ Sampling localities 1--6 refer to wild-living cats in Scotland, and lo
 \item To make a new {\em structure} project to analyze the {\em cats.dat} data set:
 \begin{enumerate}
 \item Launch {\em structure} (usually by double-clicking its icon or its shortcut).  This launches the front end.
-\item Go back to {\em structure} and choose [File]$\rightarrow$[New Project\ldots] to launch the ``Project Wizard".  Then give the project a name (I would recommend not putting spaces in the name).  In the rest of this, we will assume we have named the project ``NCSU04".  Select the directory you wish to put it in (in this example---``NCSU04\_SructProj") and then select the data file {\sl cats.dat}.
+\item Go back to {\em structure} and choose [File]$\rightarrow$[New Project\ldots] to launch the ``Project Wizard".  Then give the project a name (I would recommend not putting spaces in the name).  In the rest of this, we will assume we have named the project ``scot-cats".  Select the directory you wish to put it in (I just put it on my Desktop) and then select the data file {\sl cats.dat} which is part of the SISG module's data.  Or, if you wish to download it directly, you can get it from \url{http://tinyurl.com/scot-cats}.  Once you download it, you have to direct {\em structure} to where the file resides in your file system.
 \begin{center}
 \includegraphics[width=.56\textwidth]{illus/projsetup.jpg}
 \end{center}
@@ -63,7 +66,15 @@ One can see there is one row with 9 locus names then 304 rows of individuals, wi
 \end{itemize}
 (If you look through the file you see that missing data values are coded as -9's). Then hit next\ldots.
 \item Step 3 of the ``Wizard":  More data file formatting setup.  Check the boxes for ``Row of marker names" (because the file starts with a row of locus names) and also for ``Data file stores data for individuals in a single line."
-\item Step 4 of the ``Wizard": Here we have to alert {\em structure} to any other columns that exist for each individual in a row.  Recall that we have an ID for each indiv, and also an integer expressing sampling location.  So check the boxes next to ``Individual ID for each individual" and ``Putative population origin for each individual."  Then hit Finish.  Then Proceed.
+\begin{center}
+\includegraphics[width=.66\textwidth]{illus/dataformat2.jpg}
+\end{center}
+\item Step 4 of the ``Wizard": Here we have to alert {\em structure} to any other columns that exist for each individual in a row.  Recall that we have an ID for each indiv, and also an integer expressing sampling location.  So check the boxes next to ``Individual ID for each individual" and ``Putative population origin for each individual."  
+\begin{center}
+\includegraphics[width=.66\textwidth]{illus/dataformat3.jpg}
+\end{center}
+Then hit Finish.  Then Proceed.
+
 
 \item That should work, and you should see the data in a spreadsheet window.  Now we must specify parameters for a run.
 \end{enumerate} 
@@ -73,7 +84,7 @@ One can see there is one row with 9 locus names then 304 rows of individuals, wi
 \begin{enumerate}
 \item Choose [Parameter Set]$\rightarrow$[New\ldots]
 \item Note that there are tabs to set the Run Length, Ancestry Model, Allele Frequency Model, and ``Advanced" options.
-\item Let's do a simple parameter set with mostly default options.  Set Burn In at 5000 and MCMC reps after burn-in to 25000.  (These are shorter than one would typically use, but we don't want to be here all day.)
+\item Let's do a simple parameter set with mostly default options.  We want to get things done pretty quickly, so we will do shorter runs than are typically recommended.  Set Burn In at 2000 and MCMC reps after burn-in to 4000. 
 \item We will use the admixture model with correlated frequencies, etc.  These are all the default options.
 \item Hit OK, and then name the parameter set.  For this example I will name it ``PlainPars".  Hit OK.  You should now see a summary of the parameter set.
 \item Try clicking around in the left hand panel to see the different views of data and parameter sets that are now available.  
@@ -109,9 +120,9 @@ Scroll through this plot and note that the individuals from sampling locales 7, 
 \newslide{The underlying parameter files}
 When the front end executes a run of {\em structure}, it creates a {\sl mainparams} and an {\sl extraparams} file.  These are the files that you would use to execute the same run on the command line.  
 
-To see what these files look like, use the Windows file browser to find and open the two files in the PlainPars directory in your {\em structure} project folder:
+To see what these files look like, you can find these two files in the PlainPars directory in your {\em structure} project folder, and open them up with any suitable text editor
 \begin{center}
-\includegraphics[width=.80\textwidth]{illus/mainparams.jpg}
+\includegraphics[width=.90\textheight]{illus/mainparams.jpg}
 \end{center}
 %There is a feature that allows you to generate these parameter files, without running them, but it seemed buggy on the version I have.  
 
@@ -124,7 +135,8 @@ We will use this feature to investigate model selection for different values of 
 \item Select [Project]$\rightarrow$[Start a Job]
 \item Then select ``PlainPars" from the Structure Scheduler
 \item Set K from 1 to 4
-\item Set the number of iterations to 2 (or 1 if the computers in the lab are a bit slow)
+\item Set the number of iterations to 2 (or more if your computer crunches through each run
+in little time.)
 \item Hit start.  
 \end{enumerate}
 
@@ -135,6 +147,21 @@ If you did more than one iteration for each $K$, compare the values obtained for
 Look at trace plots of the Ln Likelihood values for runs that look like they may be a little anomalous.
 
 Remember that inference for $K$ using {\em structure} is quite {\em ad hoc}. 
+
+\newslide{Assessing Convergence By Examining Traces}
+One of the unfortunate deficiencies of the {\em structure} front end is that it does not
+print out all the standard output of the program structure.  That output includes current
+values of a number of variables in the MCMC every sweep.  Instead, those data are stored
+within Java objects by the {\em structure} front end.  
+
+While that approach allows you to make trace plots for single runs in the front end, it is hard to compare the results from multiple runs.
+
+Since one of the themes of this course is that it is essential to compare the results from
+multiple MCMC chains, we've prepared a little R package that makes it easy to do multiple
+runs of {\em structure} and then compare the runs using the R package {\tt ggplot2}.
+
+Instructions on using it can be followed along at:\\
+\url{http://rpubs.com/eriqande/scot-cats}
 
 \newslide{Taking it further}
 That was an introductory analysis using {\em structure}.  Here are some suggestions for different analyses that you might want to experiment with if you have more time:
@@ -153,13 +180,13 @@ That was an introductory analysis using {\em structure}.  Here are some suggesti
 \end{enumerate}
 
 
-For more fun and revealing exercises you can go to:\\
-\def\urltilde{\kern -.15em\lower .7ex\hbox{\~{}}\kern .04em}
-{\small \href{http://users.soe.ucsc.edu/~eriq/dokuwiki/doku.php?id=sisg:sisg}{http://users.soe.ucsc.edu/\urltilde eriq/dokuwiki/doku.php?id=sisg:sisg}}
-
-where you will find an electronic version of the notes and a link to {\tt additional\_structure\_fun}!!
-
-
+%For more fun and revealing exercises you can go to:\\
+%\def\urltilde{\kern -.15em\lower .7ex\hbox{\~{}}\kern .04em}
+%{\small \href{http://users.soe.ucsc.edu/~eriq/dokuwiki/doku.php?id=sisg:sisg}{http://users.soe.ucsc.edu/\urltilde eriq/dokuwiki/doku.php?id=sisg:sisg}}
+%
+%where you will find an electronic version of the notes and a link to {\tt additional\_structure\_fun}!!
+%
+%
 
 
 \end{document} 
