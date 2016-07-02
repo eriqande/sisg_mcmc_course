@@ -36,7 +36,7 @@ devtools::install_github("eriqande/Rrunstruct")
 ```
 If that doesn't work, it likely is because you need to get the `devtools` package and then try again:
 ```{r, eval=FALSE}
-installed.packages("devtools")
+install.packages("devtools")
 devtools::install_github("eriqande/Rrunstruct")
 ```
 
@@ -53,6 +53,12 @@ your computer, that path will have to be set accordingly.
 3. Use the function`structure_runs()`, telling it where to put the output, what K values to use, how
 many reps for each, and the seed to use for the first run (this gets incremented by one for each
 successive run).
+
+**A Big Note** The `mainparams` file in the PlainPars needs to have the RANDOMIZE variable set to 0
+in order to set the random number generator seed to a different value for each run of `structure`.
+This can be achieved by running a set of runs through the scheduler using the front end. (Or by editing
+the `mainparams` file with a simple text editor.)
+
 ```{r, message=FALSE}
 library(Rrunstruct)
 ```
@@ -212,9 +218,10 @@ caused from the chains converging to very different parts of the space, as is cl
 happened for some of the replicates for K=3 and K=4.
 
 ## Longer runs at K = 2
-Let's see if we can tighted up that Monte Carlo variance be doing longer runs.  I have made a
+Let's see if we can tighten up that Monte Carlo variance be doing longer runs.  I have made a
 new directory `LongerRun` with the `structure` GUI and set it up to to 5000 burn in and 45000
-sweeps after burn in.  Let's do 4 reps at K=2 to see how that works out.
+sweeps after burn in.  Once again, you have to ensure that the RANDOMIZE setting in the `mainparams`
+file in that directory is set to 0. Let's do 4 reps at K=2 to see how that works out.
 ```{r, eval=FALSE}
 # do the runs
 setwd("~/Desktop/scot-cats/LongerRun")  # this must be changed on other computers
