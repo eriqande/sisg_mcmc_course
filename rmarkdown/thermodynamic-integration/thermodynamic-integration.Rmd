@@ -1,0 +1,225 @@
+---
+title: "An Exploration of Thermodynamic Integration"
+author: "Eric C. Anderson"
+date: "July 24, 2016"
+output: 
+  html_notebook: 
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\newcommand{\btheta}{\mathbf{\theta}}
+\newcommand{\bx}{\mathbf{x}}
+
+## Introduction
+
+Just last week a paper by Verity and Nichols came up online early at *Genetics*.  In this paper,
+they use a technique called *thermodynamic integration* to compute, apparently with quite good
+accuracy, the marginal likelihood for the *structure*  model with different numbers of subpopulations
+(i.e., different $K$ values).  The method of thermodynamic integration has apparently been known for some time
+in statistical physics as an approximation method for normalizing constants; it was described
+in @gelmeng; but more recently it was detailedin reference to its use with the 
+"power posterior" distribution by  @friel2005.  
+
+Thermodynamic integration looks like it would be a nice addition in anyone's Monte Carlo 
+toolbox, so this document gives a short tutorial about it.  The first section provides some
+background on Bayesian model choice to remind the reader why we might be interested in estimating
+normalizing constants.  The next section provides a (surprisingly simple!) derivation of 
+that shows why thermodynamic integration can be used to approximate normalizing distributions.
+The third section introduces a toy problem and explores Bayesian model choice within it.  The
+problem is simple enough that the marginal likelihoods can be computed exactly.  Finally, we 
+approximate the same marginal likelihoods using thermodynamic integration.  We conclude with some
+thoughts on penalization for model complexity.
+
+
+
+## Quick Review of Bayesian Model Choice
+
+Let $M_i$ denote a model.  Suppose we are interested in several different models under consideration.
+Each model describes a different
+set of circumstances and stochastic processes by which our data $\mathbf{x}$ might have 
+come to be observed.  A model $M_i$ tells us what the set of parameters is (hence it dicates
+the dimensionality of the parameter space), the probability distributions underlying observed
+and latent data (i.e., the likelihood), and the the prior distributions on the parameters.
+
+Thus, when we write down the posterior probability, we could explicitly identify the
+model. For example:
+$$
+P(\btheta|\bx, M_i) = \frac{P(\bx|\btheta, M_i)P(\btheta | M_i)}
+{\int_\btheta P(\bx|\btheta, M_i)P(\btheta | M_i) d\theta}
+$$
+
+Now, if we want to be Bayesian about choosing among different models, we could
+express our uncertainty about models in terms of the posterior probability of 
+a model.  Or, if we just wanted to compare pairs of models, we might look at the
+Bayes Factor bewteen two models, say, $M_1$ and $M_2$:
+$$
+\mathrm{Bayes~Factor} = \frac{P(\bx|M_1)}{P(\bx|M_2)}
+$$
+Either way, we need to be able to compute $P(\bx|M_i)$.  Unfortunately, 
+$$
+P(\bx|M_i) =  \int_\btheta P(\bx|\btheta, M_i)P(\btheta | M_i) d\theta
+$$
+is the normalizing constant for the model.  Recall that the reason people 
+rejoice about MCMC is that it provides a means of simulating from target 
+distributions without having to compute the normalizing constant.  Computing
+or even normalizing constants is hard! But if we want to do Bayesian
+model choice, we will want to be able to compute (or accurately approximate)
+$P(\bx|M_i)$ which is sometimes called the *marginal likelihood* or the 
+*model evidence*.  
+
+Thermodynamic integration provides one computational approach to approximating
+the marginal likelihood.
+
+## Some preliminaries
+
+There are a few mathematical/statistical things to familiarize ourselves with
+before proceeding to TI.  
+
+
+### Something that we *can* compute during the course of MCMC
+
+Though we can't directly compute the marginal likelihood by Monte Carlo during
+our MCMC simulation, there is a quantity called the *complete data log likelihood* 
+that *can* be computed during each step of an MCMC simulation.  The complete data
+log likelihood (CDLL) is simply the probability of the observed data conditional on the
+current state of all the parameters (and latent variables, if any).  In fact,
+the CDLL is quite often computed during MCMC to monitor mixing of the Markov chain,
+as it provides a conveneint single-dimensional summary of a complex multidimensinal
+system.
+
+Averaging over the values of the CDLL during MCMC gives the Monte Carlo estimate
+of the posterior mean of the CDDL
+$$
+\int_\btheta \log[P(x | \btheta, M_i)] P(\btheta | \bx, M_i) d\btheta  = 
+\int_\btheta \log[P(x | \btheta, M_i)] \biggl(\frac{P(x | \btheta, M_i) P(\btheta | M_i)}
+{\int_\btheta P(x | \btheta, M_i) P(\btheta | M_i)d\btheta}\biggr)
+d\btheta
+$$
+This quantity is decidedly *not* the same as the log of the marginal likelihood.
+However your intuition might say that it should be related somehow to the log of 
+the marginal likelihood. It turns out that it can be related, in an interesting
+fashion to the log marginal likelihood, and themodynamic integration exploits this
+relationship. 
+
+In order to make this work out, @friel2005 considered a family of distributions 
+called *power posteriors*.  
+
+### Power posteriors and CDDLs
+
+The power posterior with exponent $\beta$ is simply a posterior distribution 
+obtained by replacing the likelihood with the likelihood raised to the power
+of $\beta$ (typically with $\beta$ between 0 and 1, inclusive). That is,
+$$
+P_\beta(\btheta | \bx, M_i) = \frac{[P(\bx | \btheta, M_i)]^\beta P(\btheta | M_i)}
+{\int_\btheta [P(\bx | \btheta, M_i)]^\beta P(\btheta | M_i)d\btheta}
+$$
+
+Note that if you can draw an MCMC sample from the posterior distribution (i.e. the 
+power posterior with $\beta = 1$), then very likely you could modify your program 
+easily to sample from the power posterior with any $\beta$.  For example, if you are doing
+Metropolis-Hasting updates, you need only raise the likelihood portions of the 
+target density to the power of $\beta$.  Likewise, if you are doing Gibbs sampling on any variables,
+there is a good chance that the full conditional you are sampling from is of
+exponential form, in which case, raising it to the power of $\beta$ leads to a 
+distribution in the same family.  
+
+If you can simulate via MCMC from the power posterior with exponent $\beta$,
+then you could also compute an estimate of the posterior mean of the CDDL
+given $\beta$.  This, as before, is just the average of 
+$P(\bx | \btheta)$ over the course of the MCMC.  It is a Monte Carlo approximation to
+$$
+C_\beta = \int_\btheta \log[P(x | \btheta, M_i)] P_\beta(\btheta | \bx, M_i) d\btheta  = 
+\int_\btheta \log[P(x | \btheta, M_i)] \biggl(\frac{[P(x | \btheta, M_i)]^\beta P(\btheta | M_i)}
+{\int_\btheta [P(x | \btheta, M_i)]^\beta P(\btheta | M_i)d\btheta}\biggr)
+d\btheta
+$$
+Note that the CDDL itself, $\log[P(x | \btheta, M_i)]$, is *not* raised to $\beta$ 
+(neither inside nor outside of the $\log$ function).
+
+In the next section, we will show how TI makes use of the fact that the log marginal likelihood
+can be written as an integral over values of $\beta$ from 0 to 1 of $C_\beta$.  
+
+## The log marginal likelihood by integration over $\beta$
+
+What we would like to know is $P(\bx | M_i)$---the marginal likelihood.  It is just as good to know the log of that
+quantity, $\log[P(\bx | M_i)]$, and so that is where we will start.  The derivation here, as in a number of things 
+in statistics, is going to involve writing down "1" in a tricky fashion and then exploiting the 
+expression.
+
+So, we start with 
+$$
+\log[P(\bx| M_i)]
+$$
+Obviously this is the same as 
+$$
+\log[P(\bx | M_i)] - 0, 
+$$
+which is the same as
+$$
+\log[P(\bx | M_i)] - \log(1).
+$$
+Now, we are going to write the $1$ in $\log(1)$ as the integral of the prior on $\btheta$ 
+over all values of $\btheta$.  (Clearly, since the prior on $\btheta$ is a distribution, it
+must integrate to 1...at least so long as it is a proper prior...).  This gives us
+$$
+\log[P(\bx | M_i)] - \log\biggl[  
+\int_\btheta P(\btheta | M_i)d\btheta
+\biggr].
+$$
+Now, we are just going to write $\log[P(\bx | M_i)]$ out in its longer incarnation:
+$$
+\log\biggl[ 
+\int_\btheta P(x | \btheta, M_i) P(\btheta | M_i)d\btheta
+\biggr] 
+- 
+\log\biggl[  
+\int_\btheta P(\btheta | M_i)d\btheta
+\biggr]
+$$
+Now, we are going to include 1 in there again in a tricky fashion---this time
+as the complete data log likelihood raised to 0 in the right hand part, and we will also explicitly 
+raise the CDDL in the left hand part to the power of 1.  Obviously we still have the
+same thing as above:
+$$
+\log\biggl[ 
+\int_\btheta [P(x | \btheta, M_i)]^1 P(\btheta | M_i)d\btheta
+\biggr] 
+- 
+\log\biggl[  
+\int_\btheta 
+[P(x | \btheta, M_i)]^0
+P(\btheta | M_i)d\btheta
+\biggr]
+$$
+Notice that the only thing that is changing there is the exponent on the CDDL terms
+(i.e. in the left hand side it is 1 and in the right hand side it is 0).  So, we could
+rewrite that as:
+$$
+\biggl.
+\log\biggl[ 
+\int_\btheta [P(x | \btheta, M_i)]^\beta P(\btheta | M_i)d\btheta
+\biggr] 
+\biggr|_{\beta = 0}^{\beta = 1}
+$$
+The little vertical bar on the right is saying "evaluate the expression when $\beta = 1$ and then subtract 
+from that the expression evaluated with $\beta = 0$."  If this notation is stirring deep memories within
+you of your high school calculus class, then, Congratulations! you are on the right track.
+
+Recall from that calculus class that if you were evaluating the definite integral 
+$\int_a^b f(x)dx$, you would evaluate $\bigl. g(x) \bigr|_a^b$ where $g(x)$ was the indefinite
+integral or "anti-derivative" of $f(x)$.  Which is to say that $\frac{d}{dx}g(x) = f(x)$.
+
+So, as you might have guessed, our next step is going to be to express the equation above that
+we have been working through as a definite integral over $\beta$ from 0 to 1.  If we do that,
+then from our foregoing excursion back to our calculus class, the integrand must clearly be the
+derivative of 
+$$
+\log\biggl[ 
+\int_\btheta [P(x | \btheta, M_i)]^\beta P(\btheta | M_i)d\btheta
+\biggr]
+$$
+Remember that 
