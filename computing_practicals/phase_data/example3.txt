@@ -1,0 +1,73 @@
+23
+54
+P 002387 002521 002638 002996 003094 003157 003991 004249 004366 004648 004990 004993 007167 007854 007988 009473 009534 009600 009663 010381 011472 011554 011684 011741 011890 012145 012269 012403 012919 013388 013528 013577 013936 013973 014299 014455 015932 019228 019277 022296 022749 023463 023533 023689 024426 025580 026076 026512 027003 028314 028375 028685 029225 029894 
+SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+E001
+D G T C G G A C A C C G G A A C C A ? T ? ? T C A G I C G A I T ? ? ? ? G A I C C ? ? G T T G C C I T A A D 
+D G T C G G A C A C C G G A A C C A ? T ? ? T C A G I C G A I T ? ? ? ? G A I C C ? ? G T T G C C D T A A D 
+E002
+D A T A A A C C T A C A A G A T T A G T C T T T G G D C A A D T T A A T G A D G T C A A A C G A T I T G G I 
+D A T A A A C C T A C A A G A T T A G T C T T T G G D C A A D T T A A T G A D G T C A A A C G A T I T G G I 
+E003
+D A T A A A A C A A C A A A A ? C A A T C T T C A A ? C ? A I T C A A A G ? I C C T G G T T G C C I T A A D 
+D G T C G G C C T C C G G G A ? T A A T C T T T G G ? C ? A D T T G A T G ? D C C T G G T T G C C I T A A D 
+E004
+D G T C G G A C A C C G G A A C C A G T C T T C A G ? C G A I T C G A A G A I C C T G G T T G C C I T A A D 
+D G T C G G A C A C C G G A A C C A G T C T T C A G ? C G A I T C G A A G A I C C T G G T T G C C I T A A D 
+E005
+D A T A A A A C A A C A A A A C C A G T C T T C A A I C A A I T C A A A G ? I C C C A A A C A A C I G A A I 
+D G T C G G C C T C C G G G A T T A G T C T T T G G D C G A D T T G A T G ? D G T T G G T T G C T I T G G D 
+E006
+D ? T A A A C C T A C A A G A T T A G T C T T T G G D C A A D T T A A T G A D G T C A A A C G A T I T G G I 
+D ? T A A A C C T A C A A G A T T A G T C T T T G G D C A A D T T A A T G A D G T C A A A C G A T I T G G I 
+E007
+D G T C G G A C A C C G G A A C C A ? T C T T C A G I C G G ? ? C G A A G A D C C T G G T T G C C D T A A D 
+D G T C G G A C A C C G G A A C C A ? T C T T C A G I C G G ? ? C G A A G A D C C T G G T T G C C D T A A D 
+E008
+? ? ? ? A A A C A A C A A A A C C A G ? C T T C A A ? C A A I T C A A A G ? ? ? C C A A A C G A C I T A A I 
+? ? ? ? G G C C T C C G G G A C T A G ? C T T T G G ? C G A D T T G A T G ? ? ? T T G G T C G C T I T G G D 
+E009
+D G T C G G A C A C C G G A A C C A G T C ? T C A G I C G A I T C G A A G ? I C C T G G T T G C C I T A A D 
+D G T C G G A C A C C G G A A C C A G T C ? T C A G I C G A I T C G A A G ? D C C T G G T T G C C I T A A D 
+E010
+D A T ? ? ? A C A A C A A A A C C A G T C T T C A A ? C A A I T C A A A G ? ? C C C A A A C G A C I T A A ? 
+D G T ? ? ? C C T C C G G G A T T A G T C T T T G G ? C G A D T T G A T G ? ? G T T G G T T G C T I T G G ? 
+E011
+D G T C G G A C A C C G G A A C C A G T C T T C A G I C ? A I T ? ? A A G A I C C C A A A C G A C I T A A I 
+D G T C G G A C A C C G G A A C C A G T C T T C A G I C ? A I T ? ? A A G A I G T T G G T T G C T I T G G D 
+E012
+D A T A A A C C T A C A A G A T T A G T C T T T G G D C A A D T T A A T G A D ? C C A A A C G A C I T A A I 
+D A T A G A C C T A C A A G A T T A G T C T T T G G D C A A D T T A A T G A D ? T T G G T T G C T D T G G D 
+E013
+D A T A A A C C T A C A A G A T T A G T C T T T G G D C A A D T T A A T G A D G T C A A A C G A T I T G G I 
+D A T A A A C C T A C A A G A T T A G T C T T T G G D C A A D T T A A T G A D G T C A A A C G A T I T G G I 
+E014
+D G T ? G G A C A C C G G A A C C A ? T C T T C A G D C G A I T C G A A G ? I C C T G G T T G C C ? T A A D 
+D G T ? G G A C A C C G G A A C C A ? T C T T C A G D C G A I T C G A A G ? D C C T G G T T G C C ? T A A D 
+E015
+I A G A A A A C A A C A A G A T T A G C A C A T A A ? C A A ? ? T A A A A A D G T C A A A C A ? T I G G G I 
+D G T C A G C T T C T A A G C T T G G T C T T T G G ? G A A ? ? T G G T G A D G T C A A A C G ? T I T G G I 
+E016
+I ? G A A A ? C A A C A A G A T T A G C A C A T A ? I C A A I A T A A A A A D G T C A A A C A A T I G G G I 
+D ? T C A G ? T T C T A A G C T T G G T C T T T G ? D G A A D T T G G T G A D G T C A A A C G C T I T G G I 
+E017
+I G G C A G A C A C C A A A A C C A A C A C A C A A I C A ? ? A C G A A A A I C C T G G T T G C C I T A A D 
+D G T C G G A T A C T G G G C T T G G T C T T T A G I G G ? ? T T G G A G A I C C T G G T T G C C I T A A D 
+E018
+D A T A A A A C A A C A A A A ? C A G T C T T C A A ? C A A I T C A A A G A D C T C A A A C G A T I T G G ? 
+D G T C G G C C T C C G G G A ? C A G T C T T T G G ? C G A D T T G A T G C D G T C A A A C G A T I T G G ? 
+E019
+D A T A A A C C T A C A A G A T T A G T ? T T T ? G ? C A ? ? ? T A A T G A D G T C A A A C A A T I G G G I 
+D A T A G A C C T A C A A G A T T A G T ? T T T ? G ? C A ? ? ? T A A T G A D G T C A A A C G A T I T G G I 
+E020
+D ? T A A A C C T A C A A G A T T A G T C T T T G G ? C A A D T T A A T G A D C T C A A A C G ? T I T G G I 
+D ? T A G A C C T A C A A G A T T A G T C T T T G G ? C A A D T T A A T G A D G T C A A A C G ? T I T G G I 
+E021
+D G T C G G A C A C C G G A A ? ? ? ? T C T T C A G I C G ? ? T C G A A G A I G C C A G A C G C C I T A A I 
+D G T C G G A C A C C G G A A ? ? ? ? T C T T C A G I C G ? ? T C G A A G A I G C T G G T T G C C D T G G D 
+E022
+D A T A A A A C A A C A A A A C C A G T C T T C A A I C A A I T C A A A G A D C C T G G T T G C C I T A A D 
+D G T C G G C C T C C G G G A T T A G T C T T T G G D C G A D T T G A T G C D C C T G G T T G C C I T A A D 
+E023
+D A T A A A A C A A C A A A A ? ? ? G T C T T C A A I C A A I ? C A A A G ? I C C T G G T T G ? C I T A A D 
+D G T C G G C C T C C G G G A ? ? ? G T C T T T G G D C G A D ? T G A T G ? D C C T G G T T G ? C I T A A D 
