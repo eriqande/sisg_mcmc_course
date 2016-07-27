@@ -5,6 +5,7 @@ date: "July 24, 2016"
 output: 
   html_notebook: 
     toc: true
+bibliography: ti.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -23,8 +24,8 @@ they use a technique called *thermodynamic integration* to compute, apparently w
 accuracy, the marginal likelihood for the *structure*  model with different numbers of subpopulations
 (i.e., different $K$ values).  The method of thermodynamic integration has apparently been known for some time
 in statistical physics as an approximation method for normalizing constants; in the world of statistics it was described
-in @gelmeng; but more recently it was detailed in an approachable fashion in reference to its use with the 
-"power posterior" distribution by  @friel2005.  
+in @gelman1998simulating; but more recently it was detailed in an approachable fashion in reference to its use with the 
+"power posterior" distribution by  @friel2008marginal.  
 
 Thermodynamic integration looks like it would be a nice addition in anyone's Monte Carlo 
 toolbox, so this document gives a short tutorial about it.  The first section provides some
@@ -108,7 +109,7 @@ the marginal likelihood. It turns out that it can be related, in an interesting
 fashion to the log marginal likelihood, and themodynamic integration exploits this
 relationship. 
 
-In order to make this work out, @friel2005 considered a family of distributions 
+In order to make this work out, @friel2008marginal considered a family of distributions 
 called *power posteriors*.  
 
 ### Power posteriors
@@ -152,7 +153,8 @@ can be written as an integral over values of $\beta$ from 0 to 1 of $C(\beta; \b
 What we would like to know is $P(\bx | M_i)$---the marginal likelihood.  It is just as good to know the log of that
 quantity, $\log[P(\bx | M_i)]$, and so that is where we will start.  The derivation here, as in a number of things 
 in statistics, is going to involve writing down the quantity 1, dressed up in a tricky fashion, and then exploiting that 
-expression with a fun trick.
+expression with a fun trick.  (This derivation proceeds in the opposite direction from most presentations in the 
+literature and is a little longer, but I find it a little more illuminating.)
 
 So, we start with what we would like to know (or, at least accurately approximate):
 $$
@@ -280,4 +282,11 @@ Now, we typically are not going to be able to analytically evaluate that integra
 Therefore, we can just form MCMC approximations of $C(\beta; \bx, M_i)$ at many values of $\beta$ between
 0 and 1, and then approximate the integral by the trapezoidal rule or Simpson's method for approximating 
 integrals.  Both of which are straightforward.  Holy Cow! That is pretty cool.
+
+I currently don't know how workable this scheme is in practice (one big question is "how much Monte Carlo variance
+does one find when $\beta$ is small? Enough that it is very hard to estimate the mean log likelihood accurately when 
+$\beta$ is small?"  Some further work has been done on reducing the discretization error. See @friel2014.
+
+
+## References
 
