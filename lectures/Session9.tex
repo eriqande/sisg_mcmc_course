@@ -353,6 +353,28 @@ in {\sl structure}, and this approach may be implemented in future versions.
 %The jury is still out on how useful $p_D $ and DIC are for model
 %comparison.
 
+
+\newslide{Thermodynamic Integration}
+A very recent paper in {\em Genetics}
+\begin{center}
+\includegraphics[width = 0.9\textwidth]{illus/verity.png}
+\end{center}
+\newpage
+
+These authors show some oft-observed behavior of {\em structure}'s estimator of the $\log P(\mathrm{Data} | K)$---the values keep climbing as $K$ gets larger:
+\begin{center}
+\includegraphics[width = 0.9\textwidth]{illus/verity2.png}
+\end{center}
+$\bullet$ And their thermodynamic integration approach seems to give a more stable, reasonable 
+result (confirmed in simulations, as well).
+
+\newpage
+ECA has prepared a short(-ish) and still incomplete R-notebook describing the thermodynamic inegration method.  It is available at:
+
+{\tiny
+\url{https://github.com/eriqande/sisg_mcmc_course/blob/master/rmarkdown/thermodynamic-integration/thermodynamic-integration.nb.html}
+}
+
 \newslide{Summary}
 
 \begin{itemize}
