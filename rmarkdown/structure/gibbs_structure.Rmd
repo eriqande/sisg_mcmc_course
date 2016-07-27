@@ -1,0 +1,153 @@
+---
+title: "Gibbs Sampling for a structure-like mixture"
+author: "Matthew Stephens"
+date: 2016-07-26
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options, include=FALSE}
+source("chunk-options.R")
+```
+
+# Pre-requisites
+
+Know what a Gibbs sampler is, and a mixture model is. 
+Be familiar with Bayesian inference for a binomial proportion (with beta prior),
+a multinomial proportion (with Dirichlet prior) and for the two class problem.
+
+# Overview
+
+We consider using Gibbs sampling to perform inference for the following mixture model.
+$$\Pr(Z_i = k) = \pi_k$$ 
+$$\Pr(X_{ij} = a | Z_i = k) = p^a_{kj} (1-p)^(1-a)_{kj}$$ 
+where $a \in \{0,1\}$.
+
+To illustrate, let's simulate data from this model:
+
+```{r}
+set.seed(33)
+
+# generate from mixture of normals
+#' @param n number of samples
+#' @param pi K-vector of mixture proportions
+#' @param P R by K matrix of allele frequencies
+r_simplemix = function(n,pi,P){
+  R = nrow(P)
+  K = ncol(P)
+  z = sample(1:K,prob=pi,size=n,replace=TRUE)
+  x = matrix(nrow = R, ncol=n)
+  for(i in 1:n){
+    x[,i] = rbinom(R,rep(1,R),P[,z[i]])
+  }
+  return(x)
+}
+P = cbind(c(0.5,0.5,0.5,0.5),c(0.001,0.999,0.001,0.999))
+x = r_simplemix(n=1000,pi=c(0.5,0.5),P)
+
+```
+
+
+# Gibbs sampler
+
+Suppose we want to inference for the parameters $\pi,P$ and cluster memberships $z$.
+That is, we want to sample from $p(\pi,P,z | x)$.
+We can use a Gibbs sampler. 
+
+Here is the algorithm in outline:
+
+* sample $P$ from $P | x, z, \pi$
+* sample $\pi$ from $\pi | x, z$
+* sample $z$ from $z | x, \pi, P$
+
+The point here is that all of these conditionals are easy to sample from.
+
+# Code
+
+```{r}
+
+#' P is R by K
+#' x is an R vector of alleles at R loci
+#' return is a K vector of log-likelihoods
+log_pr_x_given_P = function(x,P){colSums(x*log(P)+(1-x)*log(1-P))}
+  
+  normalize = function(x){return(x/sum(x))}
+  
+  #' @param x an R by n matrix of data
+  #' @param pi a k vector
+  #' @param mu a k vector
+  sample_z = function(x,pi,P){
+    loglik_matrix = apply(x, 2, log_pr_x_given_P, P=P)
+    p.z.given.x = as.vector(pi) * exp(loglik_matrix) 
+    p.z.given.x = apply(p.z.given.x,2,normalize) # normalize columns
+    z = rep(0, ncol(x))
+    for(i in 1:length(z)){
+      z[i] = sample(1:length(pi), size=1,prob=p.z.given.x[,i],replace=TRUE)
+    }
+    return(z)
+  }
+ 
+  #' @param z an n vector of cluster allocations (1...k)
+  #' @param k the number of clusters
+  sample_pi = function(z,k){
+    counts = colSums(outer(z,1:k,FUN="=="))
+    pi = gtools::rdirichlet(1,counts+1)
+    return(pi)
+  }
+
+  #' @param x an R by n matrix of data
+  #' @param z an n vector of cluster allocations
+  #' @param K number of populations
+  #' @param alpha,beta parameters of beta prior on P (could be R vectors)
+  sample_P = function(x, z, K, alpha=1, beta=1){
+    R = nrow(x)
+    P = matrix(nrow=R,ncol=K)
+    for(i in 1:K){
+      sample_size = sum(z==i)
+      if(sample_size==0){
+          number_of_ones=rep(0,R)} 
+      else{
+        number_of_ones = rowSums(x[,z==i])}
+      P[,i] = rbeta(R,alpha+number_of_ones,beta+sample_size-number_of_ones) 
+    }
+    return(P)
+  }
+  
+  gibbs = function(x,K,niter = 100){
+    pi = rep(1/K,K) # initialize
+    z = sample(1:K,ncol(x),replace=TRUE)
+    res = list(pi = matrix(nrow=niter,ncol=K), z = matrix(nrow=niter, ncol=length(x)))
+    res$pi[1,]=pi
+    res$z[1,]=z 
+    
+    for(i in 2:niter){
+        P = sample_P(x,z,K)
+        pi = sample_pi(z,K)
+        z = sample_z(x,pi,P)
+        res$pi[i,] = pi
+        res$z[i,] = z
+    }
+    return(res)
+  }
+```    
+  
+  
+
+Try the Gibbs sampler on the data simulated above. 
+```{r}
+  res = gibbs(x,2)
+  
+```
+
+
+```{r}
+  
+```
+
+## Session information
+
+```{r info}
+sessionInfo()
+```
