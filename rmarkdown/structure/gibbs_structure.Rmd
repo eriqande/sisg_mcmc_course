@@ -22,7 +22,7 @@ a multinomial proportion (with Dirichlet prior) and for the two class problem.
 
 We consider using Gibbs sampling to perform inference for the following mixture model.
 $$\Pr(Z_i = k) = \pi_k$$ 
-$$\Pr(X_{ij} = a | Z_i = k) = p^a_{kj} (1-p)^(1-a)_{kj}$$ 
+$$\Pr(X_{ij} = a | Z_i = k) = p^a_{kj} (1-p_{kj})^{(1-a)}$$ 
 where $a \in \{0,1\}$.
 
 To illustrate, let's simulate data from this model:
@@ -59,7 +59,7 @@ We can use a Gibbs sampler.
 Here is the algorithm in outline:
 
 * sample $P$ from $P | x, z, \pi$
-* sample $\pi$ from $\pi | x, z$
+* sample $\pi$ from $\pi | x, z, P$
 * sample $z$ from $z | x, \pi, P$
 
 The point here is that all of these conditionals are easy to sample from.
@@ -133,17 +133,9 @@ log_pr_x_given_P = function(x,P){colSums(x*log(P)+(1-x)*log(1-P))}
   }
 ```    
   
-  
-
 Try the Gibbs sampler on the data simulated above. 
 ```{r}
-  res = gibbs(x,2)
-  
-```
-
-
-```{r}
-  
+res = gibbs(x,2)
 ```
 
 ## Session information
