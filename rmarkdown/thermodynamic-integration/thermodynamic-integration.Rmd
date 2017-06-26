@@ -3,7 +3,7 @@ title: "An Exploration of Thermodynamic Integration"
 author: "Eric C. Anderson"
 date: "July 24, 2016"
 output: 
-  html_notebook: 
+  html_notebook:
     toc: true
 bibliography: ti.bib
 ---
