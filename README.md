@@ -4,6 +4,7 @@ SISG MCMC COURSE
 
 -   [GETTING AND COMPILING THE LECTURES](#getting-and-compiling-the-lectures)
 -   [ADDING R CODE COMPANIONS](#adding-r-code-companions)
+-   [LICENSE](#license)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 This repository includes the LaTeX source code and the image files to produce the lectures used by Eric C. Anderson and Matthew Stephens in their course "Markov Chain Monte Carlo for Statistical Genetics" taught at the Summer Institute in Statistical Genetics (SISG).
@@ -61,8 +62,10 @@ For example, the YAML header for `s02-20-random-walk-scattering-limiting.Rmd` lo
         toc: true
     ---
 
-When these conventions are followed, then knitting the file `docs/index.Rmd` produces and `index.html` that provides links to all the R-code companions.
-\#\# LICENSE
+When these conventions are followed, then knitting the file `docs/index.Rmd` produces an `index.html` that provides links to all the R-code companions.
+
+LICENSE
+-------
 
 Copyright (C) 2014 Eric C. Anderson and Matthew Stephens with contributions from Mike Denham.
 
