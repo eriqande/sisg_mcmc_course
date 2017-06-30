@@ -1,0 +1,195 @@
+---
+title: "Random Walk with Scattering Boundaries, and Limiting Distributions"
+description: We devise a simple 5-state Markov chain, explore its properties, simulate from it and observe the consequences of the Weak Law of Large numbers for ergodic chains.
+output: 
+  html_notebook:
+    toc: true
+---
+
+\usepackage{blkarray}
+\usepackage{amsmath}
+\newcommand{\bm}{\boldsymbol}
+
+This is an R-code companion to Session 2, around pages 20 to 26.
+
+Let's load Hadley's tidyverse and other packages we need before we get going.  The following
+will also install them if you don't have them. 
+```{r}
+packs <- c("tidyverse", "expm", "viridis")
+
+# install any that are not here
+install_em <- setdiff(packs, rownames(installed.packages()))
+if(length(install_em) > 0) install.packages(pkgs = install_em)
+
+# load em up
+dump <- lapply(packs, function(x) library(x, character.only = TRUE))
+```
+
+## Make the TPM
+
+
+
+The basic setup is that we define a transition probability matrix on the 
+integers from 1 to 5 with scattering boundaries.   In code, we can make the 
+TPM like this:
+```{r make-tpm}
+P <- matrix(
+  c(.2, .2, .2, .2, .2,
+    .2, .3, .5, 0, 0,
+    0,  .3, .4, .3, 0,
+    0, 0, .5, .3, .2,
+    .2, .2, .2, .2, .2),
+  ncol = 5,
+  byrow = TRUE
+)
+P
+```
+
+
+## A function to Simulate a Markov Chain from $\mathbf{P}$
+
+For any TPM, $\mathbf{P}$, we can simulate the chain with a function like this.  In this
+version we will return a tibble
+```{r tpm-sim-func}
+#' function to simulate from a transition probability matrix
+#' @param P the transition probability matrix.  The states are assumed to be
+#' the integers from 1 to the number of rows/columns.  Rows must sum to one.
+#' @param init starting value
+#' @param reps number of steps of the chain to make
+sim_tpm <- function(P, init, reps) {
+  stopifnot(all(near(rowSums(P), 1))) # make sure rows sum to 1
+  stopifnot(init %in% 1:nrow(P)) # make sure starting point is valid
+  
+  ret  <- rep(NA, reps)  # to return values at the end
+  
+  ret[1] <- init # set first state to init
+  for (i in 2:reps) {  # updated states 2...reps, each according to the previous and P
+     ret[i] <- sample(x = 1:nrow(P), size = 1, prob = P[ret[i - 1], ])
+  }
+  
+  tibble::tibble(iter = 1:reps, state = ret)
+}
+```
+
+## Simulate the chain from different starting values
+
+Let's do five runs of the chain, each for 1000 iterations, and each starting from a different
+value.  We will put the results into a big tibble at the end.
+```{r run-5-times}
+set.seed(5)  # for reproducibility
+runs5 <- lapply(1:5, function(x) sim_tpm(P, x, 1000)) %>%
+  bind_rows(.id = "starting_state")
+# look at a few rows of that
+runs5[1:20, ]
+```
+
+And we can plot those trajectories:
+```{r plot-5-chains, fig.width = 10, out.width="100%", cache = TRUE}
+ggplot(runs5, aes(x = iter, y = state, colour = starting_state)) +
+  geom_line() +
+  facet_wrap(~ starting_state, ncol = 3)
+```
+
+And we can also look at how many times each chain has spent in particular states:
+```{r hist-5-chains, fig.width = 10, out.width="100%", cache = TRUE}
+ggplot(runs5, aes(x = state, fill = starting_state)) +
+  geom_histogram(bins = 5) +
+  facet_wrap(~ starting_state, ncol = 3)
+```
+
+and we see that those are all pretty similar, regardless of the starting state, as we 
+might expect.
+
+## $n$-step Probabilities by matrix multiplication
+
+We can represent our knowledge (uncertainly) of the state of the system using a row vector
+of probabilties.  For example
+$$
+\boldsymbol{v}_0 = (0, 0, 0, 1, 0)
+$$
+tells us that at step 0, we are certain the system is in state 4.  Probabilities after one step
+are found by matrix multiplication: i.e., $\boldsymbol{v}_1 = \boldsymbol{v}_0\mathbf{P}$.  In code
+this looks like:
+```{r n-step-probs}
+# let's say v0 state is known with certainty:
+v0 <- c(0, 0, 0, 1, 0)
+
+# probs after one step
+v1 <- v0 %*% P
+v1
+
+# another step
+v2 <- v1 %*% P
+v2
+# and another
+v3 <- v2 %*% P
+v3
+```
+
+Note that we got to `v3` like this:
+```{r}
+v3_alt <- (((v0 %*% P) %*% P) %*% P)
+v3_alt
+```
+But, recall that matrix multiplication is associative (which means you can change how the matrices
+are grouped by parentheses without changing the value of the product), so we can rewrite that as
+```{r}
+v3_alt2 <- v0 %*% (P %*% P %*% P)
+v3_alt2
+```
+
+And **that** suggests that we can get the $n$-step probabilites of ending up 
+somewhere by multiplying $\boldsymbol{v}_0$ by
+$$
+\mathbf{P}^n = \mathbf{P}\mathbf{P}\mathbf{P}\cdots \mathbf{P}\mathbf{P} ~~~~~~(n~\mbox{times})
+$$
+R does not have a built in function for multiplying a square matrix to 
+itself $n$ times.  But the `expm` package provides `%^%`.  Let's look at
+$\mathbf{P}$ when we power it up...
+```{r}
+library(expm)
+
+P %^% 1  # Just P itself
+
+P %^% 2  # After two steps
+
+P %^% 3  # After three steps
+
+P %^% 10 # After 10 steps
+```
+
+Wow! Each row seems to be converging to the same value.
+
+## Just for fun, lets look at the powered TPM graphically
+
+Just to play around with some ggplot hooliganism, lets power the matrix up 1, 2, 3, 4, 5, 6, 10, 50, 100
+times and plot the matrices as heatmaps.
+```{r, fig.width = 10, out.width="100%"}
+ns <- c(1, 2, 3, 4, 5, 6, 10, 50, 100)
+names(ns) <- ns
+
+# get all the tpm values in long format
+probs <- lapply(ns, function(x) {
+  M <- P %^% x
+  colnames(M) <- 1:5
+  M %>% 
+    as_tibble() %>%
+    mutate(from = 1:5) %>%
+    gather(key = "to", value = "prob", -from)
+  }) %>%
+  bind_rows(.id = "power") %>%
+  mutate(power = as.integer(power))
+
+# plot em
+ggplot(probs, aes(x = to, y = from, fill = prob)) +
+  geom_raster() +
+  facet_wrap(~ power, ncol = 3) +
+  scale_fill_viridis() +
+  geom_hline(yintercept = 0:5 - 0.5, colour = "white") +
+  geom_vline(xintercept = 0:5 - 0.5, colour = "white")
+```
+
+And we see that the values in the rows of the matrix are all converging to the same
+vector.  This vector is called the _limiting distribution_.  And a Markov chain that 
+has this property is called _ergodic_.
+

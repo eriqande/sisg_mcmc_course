@@ -1,0 +1,21 @@
+
+%% Eric added a few things:
+% some commands that Eric made for making a title while starting
+% a new lecture and for making titles of new slides.
+\newcommand{\newlecture}[1]{\newpage\begin{center}\section*{#1}\end{center}}
+\newcommand{\newslide}[1]{\newpage\subsection*{#1: \hfil}}
+ \newcommand{\Exp}{\Bbb{E}}
+ \newcommand{\Var}{{\mathrm{Var}}}
+ %% Some pretty etc.'s, etc...
+\newcommand{\cf}{{\em cf.}}
+\newcommand{\eg}{{\em e.g.},}
+\newcommand{\ie}{{\em i.e.},}
+\newcommand{\etal}{{\em et al.}\ }
+\newcommand{\etc}{{\em etc.}}
+
+%% some handy things for making bold math
+\def\bm#1{\mathpalette\bmstyle{#1}}
+\def\bmstyle#1#2{\mbox{\boldmath$#1#2$}}
+\newcommand{\thh}{^\mathrm{th}}
+\newcommand{\bpi}{{\pi}}
+\newcommand{\mP}{\mathbf{P}}

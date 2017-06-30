@@ -3,3 +3,4 @@
 
 .Rhistory
 R-notebooks/*.nb.html
+R-notebooks/*.pdf

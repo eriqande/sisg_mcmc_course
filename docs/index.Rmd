@@ -1,0 +1,62 @@
+---
+title: "Listing of Available R-code Companions"
+output: html_document
+---
+
+This is a listing, by session, of all the R-code companions available for 
+the SISG MCMC course.
+
+```{r, echo=FALSE, message=FALSE}
+library(tidyverse)
+library(stringr)
+```
+
+```{r, echo=FALSE}
+# get the name of all .nb.html files in docs, and the corresponding Rmd name
+nbfull <- dir("../docs", pattern = "*.nb.html", full.names = TRUE) %>%
+  setNames(dir("../docs", pattern = "*.nb.html")) %>%
+  enframe(name = "nbfile", value = "nb_full") %>%
+  mutate(file = str_replace(nbfile, "nb.html$", "Rmd"))
+
+
+# make a tibble of all Rmd files in the R-notebooks directory and filter it by nb.htmls in docs
+rmds <- dir("../R-notebooks", pattern = "*.Rmd", full.names = TRUE) %>%
+  setNames(dir("../R-notebooks/", pattern = "*.Rmd")) %>%
+  enframe(name = "file", value = "path") %>%
+  semi_join(nbfull, by = "file")
+
+
+# now, get the titles and descriptions and pull out the session and pages
+rtib <- rmds %>%
+  mutate(title = lapply(rmds$path, function(x) {
+    tmp <- packagedocs::read_rmd_yaml(x)$title
+    if (is.null(tmp)) tmp <- "No Title"
+    tmp})) %>%
+  mutate(description = lapply(rmds$path, function(x) {
+    tmp <- packagedocs::read_rmd_yaml(x)$description
+    if (is.null(tmp)) tmp <- "No Description"
+    tmp}))  %>%
+  mutate(session = parse_number(str_match(file, "s([0-9]+)")[,2]),
+         session = ifelse(is.na(session), 0, session)) %>%
+  arrange(session, file) %>%
+  mutate(nbfile = str_replace(file, ".Rmd", ".nb.html")) %>%
+  mutate(lstring = paste0("- [", title, "](./", nbfile, ").  ", description, "\n"))
+
+```
+
+
+```{r, echo = FALSE, results = "asis"}
+# Now, we just break those into sessions and print them as markdown into the document
+sess <- split(rtib, rtib$session)
+dump <- lapply(names(sess), function(s) {
+  cat(paste0("\n\n## Session ", s, "\n\n"))
+  cat(sess[[s]]$lstring, sep = "")
+})
+```
+
+
+
+## Additional Lecture-like things
+
+- [Thermodynamic Integration](./thermodynamic-integration.nb.html)
+
