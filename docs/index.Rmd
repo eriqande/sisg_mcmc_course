@@ -4,7 +4,7 @@ output: html_document
 ---
 
 This is a listing, by session, of all the R-code companions available for 
-the SISG MCMC course.
+the SISG MCMC course, as well as a few other materials.
 
 ```{r, echo=FALSE, message=FALSE}
 library(tidyverse)

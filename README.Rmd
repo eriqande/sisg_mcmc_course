@@ -95,6 +95,17 @@ output:
 When these conventions are followed, then knitting the file `docs/index.Rmd` produces 
 an `index.html` that provides links to all the R-code companions.  
 
+So, the workflow is:
+
+1. Write a new R code companion, named appropriately, and with a description line.
+2. Once it is done, turn it into an nb.html file and move or copy that to `docs/`
+3. Open `docs/index.Rmd` and knit it.
+4. Commit all the new things and push em up to be stored and served off GitHub.
+
+Then when students go to [http://eriqande.github.io/sisg_mcmc_course/](http://eriqande.github.io/sisg_mcmc_course/) they get a list of R-code vignettes for the course.
+
+
+
 
 ## LICENSE
 
