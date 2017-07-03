@@ -1,0 +1,189 @@
+---
+title: "Estimating probabilities in the Wright-Fisher model"
+description: We make a simple R function to simulate the Wright-Fisher model at a single biallelic locus, and then we approximate some $t$-step transition probabilities  by Monte Carlo.
+output: 
+  html_notebook:
+    toc: true
+---
+
+\usepackage{blkarray}
+\usepackage{amsmath}
+\newcommand{\bm}{\boldsymbol}
+\newcommand{\Exp}{\mathbbb{E}}
+
+This is an R-code companion to Session 2, around pages 9 to 11.  We are going to 
+make a simple function to simulate the Wright-Fisher population, and then show
+how this can be used to approximate $t$-step transition probabilities (i.e., 
+the probability that the population goes from $X_0$ copies of the $A$ allele to
+$X_t$ copies of the $A$ allele in $t$ generations.)
+
+Let's load Hadley's tidyverse and other packages we need before we get going.  The following
+will also install them if you don't have them. 
+```{r}
+packs <- c("tidyverse")
+
+# install any that are not here
+install_em <- setdiff(packs, rownames(installed.packages()))
+if (length(install_em) > 0) install.packages(pkgs = install_em)
+
+# load em up
+dump <- lapply(packs, function(x) library(x, character.only = TRUE))
+```
+
+## A simple W-F function
+
+This will take a population size (as $2N$) and initial number of $A$ alleles.
+Each generation, gene copies are drawn with replacement from the previous generation,
+which corresponds to binomial sampling with a success probability given be the fraction of 
+$A$ genes in the previous generation.  
+
+```{r wf-func}
+#' simple function
+#' 
+#' @param TwoN the population size as the number of gene copies (assume a diploid pop)
+#' @param X0 the starting number of copies of the A allele
+#' @param gens the number of generations to simulate
+wf_sim_single <- function(TwoN, X0, gens) {
+  # make sure input is acceptable
+  stopifnot(X0 >= 0 && X0 <= TwoN)
+  stopifnot(TwoN >= 2)
+  
+  # initialize a vector to return the values. We will include 
+  # X0 in it as the first element
+  ret <- rep(NA_integer_, gens + 1)
+  ret[1] <- X0
+  for (i in 2:(gens + 1)) {
+    ret[i] <- rbinom(n = 1, size = TwoN, prob = ret[i - 1] / TwoN)
+  }
+  
+  names(ret) <- c(0,1:gens)
+  ret
+  
+}
+```
+
+That function is useful to get one instance of a Wright-Fisher population at a time.
+For example, if $N=50$ and $X_0 = 40$, we can do twenty generations of W-F reproduction
+like this:
+```{r twenty-gens}
+set.seed(5)
+result <- wf_sim_single(TwoN = 100, X0 = 40, gens = 20)
+result
+```
+
+## A function to do multiple replicates
+
+That is all well and good, but, when we are doing Monte Carlo we are going to want to
+simulate things over and over again.  So, we will make another function that returns
+a matrix of allele frequency trajectories.  Each row is a generation and each colums will
+be a different simulation.  We just have to twiddle the original function a little.
+```{r wf-func-matrix}
+#' simple function
+#' 
+#' @param TwoN the population size as the number of gene copies (assume a diploid pop)
+#' @param X0 the starting number of copies of the A allele
+#' @param gens the number of generations to simulate
+#' @param reps the number of times to simulate the population
+wf_sim_multi <- function(TwoN, X0, gens, reps) {
+  # make sure input is acceptable
+  stopifnot(X0 >= 0 && X0 <= TwoN)
+  stopifnot(TwoN >= 2)
+  
+  # initialize a matrix to return the values. We will include 
+  # X0 in it as the first row
+  ret <- matrix(NA_integer_, nrow = gens + 1, ncol = reps)
+  ret[1, ] <- X0
+  
+  for (i in 2:(gens + 1)) {
+    ret[i, ] <- rbinom(n = reps, size = TwoN, prob = ret[i - 1, ] / TwoN)
+  }
+  
+  dimnames(ret) <- list(generation = c(0,1:gens), replicate = 1:reps)
+  ret
+  
+}
+```
+
+So, now we can quickly look at 10 replicates of a simulation of 2,000 generations
+with $2N = 1000$ and  $X_0 = 400$, like so:
+```{r}
+res2 <- wf_sim_multi(TwoN = 1000, X0 = 400, gens = 1000, reps = 10)
+head(res2)
+```
+
+So, if we wanted to plot these 10 different population trajectories, using ggplot
+we could do this:
+```{r}
+# make a tibble of the results
+rtib2 <- tibble(X = as.vector(res2),
+                generation = rep(rownames(res2), ncol(res2)),
+                replicate = rep(colnames(res2), each = nrow(res2))) %>%
+  mutate(generation = as.integer(generation),
+         replicate = as.integer(replicate)) %>%
+  select(replicate, generation, X)
+
+# looks like this:
+rtib2
+
+# then plot it:
+ggplot(rtib2, aes(x = generation, y = X)) +
+  geom_line() +
+  facet_wrap(~ replicate)
+```
+
+## The 14-generation example from the lecture
+
+Now, let's replicate the example from the lecture: $2N = 200$, $X_0 = 60$ for 14 generations 
+of drift, with $n = 50,000$ replicates.
+```{r}
+lect_examp <- wf_sim_multi(TwoN = 200, X0 = 60, gens = 14, reps = 50000)
+
+# and to get the state at t = 14 we need to grab that row.  Note that 
+# we use a character "14" because it starts at 0
+t14 <- lect_examp["14", ]
+```
+We can plot a histogram of that quickly:
+```{r}
+hist(t14)
+```
+
+Now, in order to see that the histogram is a series of little indicator functions
+we can construct what was done in the notes using the cut function. 
+
+As it says in the lecture notes: the distribution of $X_{14}$ can be approximated by a histogram.
+Each histogram column is an approximation of an expectation:
+$$
+\begin{aligned}
+		P(a\leq X<a+2) & =  \mathbb{E}[I_{\{x:a\leq x<a+2\}}(X)]  \\
+		&\approx  \displaystyle \frac{1}{n}
+		\sum_{i=1}^n I_{\{x:a\leq x<a+2\}}(x^{(i)}) 
+\end{aligned}
+$$
+for $a=0,2,\ldots,200$, where each $x^{(i)}$ is an independent realization of the 
+number of $A$ alleles at $t=14$ in the Wright-Fisher model.
+
+To do that in R code, we will `cut` the `t14` variable into groups of the 
+form `[a, a+2)`:
+```{r}
+a <- seq(0, 202, by = 2)
+
+# this puts each observations into an interval
+cnts <- cut(x = t14, breaks = a, right = FALSE) %>%
+  tibble(interval = .) %>%  # this makes a tibble of it
+  count(interval)  # this counts how many are in each interval
+
+cnts
+```
+
+Now, let's plot that dude:
+```{r}
+cnts %>%
+  separate(interval, into = c("left", "right"), sep = ",", remove = FALSE) %>%
+  mutate(left = parse_number(left),
+         right = parse_number(right)) %>%
+  mutate(bin_midpoint = (left + right) / 2) %>%
+  ggplot(., aes(x = bin_midpoint, y = n)) + 
+  geom_col(fill = NA, colour = "black", size = 0.2) +
+  theme_bw()
+```
+
