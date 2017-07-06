@@ -187,7 +187,7 @@ $$
 \biggr]
 $$
 Now, we are going to include 1 in there again in a tricky fashion---this time
-as the likelihood, $P(x | \btheta, M_i)]$, raised to 0 in the right hand part. And we will also explicitly 
+as the likelihood, $P(x | \btheta, M_i)$, raised to 0 in the right hand part. And we will also explicitly 
 raise the likelihood where it appears in the left hand part to the power of 1.  Obviously we still have the
 same thing as above:
 $$
