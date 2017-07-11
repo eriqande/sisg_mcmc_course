@@ -4,6 +4,7 @@ description: We make a simple R function to simulate the Wright-Fisher model at 
 output: 
   html_notebook:
     toc: true
+    toc_float: true
 ---
 
 \usepackage{blkarray}

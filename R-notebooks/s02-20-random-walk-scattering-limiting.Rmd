@@ -4,6 +4,7 @@ description: We devise a simple 5-state Markov chain, explore its properties, si
 output: 
   html_notebook:
     toc: true
+    toc_float: true
 ---
 
 \usepackage{blkarray}
@@ -19,7 +20,7 @@ packs <- c("tidyverse", "expm", "viridis")
 
 # install any that are not here
 install_em <- setdiff(packs, rownames(installed.packages()))
-if(length(install_em) > 0) install.packages(pkgs = install_em)
+if (length(install_em) > 0) install.packages(pkgs = install_em)
 
 # load em up
 dump <- lapply(packs, function(x) library(x, character.only = TRUE))
