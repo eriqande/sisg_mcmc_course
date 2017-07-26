@@ -194,3 +194,7 @@ And we see that the values in the rows of the matrix are all converging to the s
 vector.  This vector is called the _limiting distribution_.  And a Markov chain that 
 has this property is called _ergodic_.
 
+## Session Information
+```{r}
+sessionInfo()
+```

@@ -59,4 +59,5 @@ dump <- lapply(names(sess), function(s) {
 ## Additional Lecture-like things
 
 - [Thermodynamic Integration](./thermodynamic-integration.nb.html)
+- [Matthew Stephens' 5-minute Statistics Page](http://stephens999.github.io/fiveMinuteStats/)
 

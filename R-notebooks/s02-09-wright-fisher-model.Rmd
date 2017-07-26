@@ -188,3 +188,7 @@ cnts %>%
   theme_bw()
 ```
 
+## Session Information
+```{r}
+sessionInfo()
+```

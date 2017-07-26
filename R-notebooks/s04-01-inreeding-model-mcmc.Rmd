@@ -641,3 +641,9 @@ this shows a fundamental tradeoff that often happens in MCMC: you can often get 
 per-sweep by making more intelligent proposals.  But, if those proposals take a lot of extra time
 to compute (or if they are a shrieking horror to code up) it might not be worth it.  It is in
 making decisions like these where some of the fun "art" of implementing MCMC comes in.
+
+## Session Information
+```{r}
+sessionInfo()
+```
+
