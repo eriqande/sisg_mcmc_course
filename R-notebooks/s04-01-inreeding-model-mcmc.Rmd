@@ -22,7 +22,7 @@ types of samplers discussed in the session.
 Let's load Hadley's tidyverse and other packages we need before we get going.  The following
 will also install them if you don't have them. 
 ```{r}
-packs <- c("tidyverse", "plotly", "viridis", "broom", "tidyr")
+packs <- c("tidyverse", "plotly", "viridis", "broom")
 
 # install any that are not here
 install_em <- setdiff(packs, rownames(installed.packages()))
@@ -292,15 +292,6 @@ record the state of the chain at each sweep (or at some "thinned" interval of sw
 we wanted to keep a full record of the progression of all the variables so that they would be
 available for  students to peruse or analyze. 
 
-Let's give it a run and make sure the means are correct:
-```{r}
-states <- mcmc_2d_mh(ndata = c(30, 10, 10), pri = c(1, 1, 1, 1))
-
-states %>%
-  filter(sweep > 100) %>%
-  summarise(mean_p = mean(p),
-            mean_f = mean(f))
-```
 
 ## Component-wise Metropolis-Hastings Sampler
 
@@ -395,21 +386,7 @@ mcmc_cw_mh <- function(ndata,
 }
 ```
 
-Try it out:
-```{r}
-cw <- mcmc_cw_mh(ndata = c(30, 10, 10))
 
-cw %>%
-  filter(sweep > 100) %>%
-  summarise(mean_p = mean(p),
-            mean_f = mean(f))
-```
-
-## Some exercises for the extremely motivated
-
-1. Which sampler has a higher proportion of acceptances?
-2. Which sampler has lower autocorrelation between values.  You can use the `acf` function.
-3. Which sampler takes longer per sweep? (Try using `microbenchmark`)
 
 ## The Gibbs sampler
 
@@ -664,4 +641,3 @@ this shows a fundamental tradeoff that often happens in MCMC: you can often get 
 per-sweep by making more intelligent proposals.  But, if those proposals take a lot of extra time
 to compute (or if they are a shrieking horror to code up) it might not be worth it.  It is in
 making decisions like these where some of the fun "art" of implementing MCMC comes in.
-
