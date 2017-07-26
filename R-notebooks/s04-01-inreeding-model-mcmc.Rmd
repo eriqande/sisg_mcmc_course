@@ -16,13 +16,13 @@ This is an R-code companion to Session 4, and the contents encompass just about
 all the material in the session.  During the lecture associated with the lesson,
 we showed some OpenGL-based animations of the MCMC sampler for the inbreeding model,
 but the code for that is implemented in C, and is not super accessible.  So, the goal
-here is to implement the model and MCMC for the model using the several different
+here is to implement, in R, the model and MCMC for the model using the several different
 types of samplers discussed in the session.  
 
 Let's load Hadley's tidyverse and other packages we need before we get going.  The following
 will also install them if you don't have them. 
 ```{r}
-packs <- c("tidyverse", "plotly")
+packs <- c("tidyverse", "plotly", "viridis", "broom", "tidyr")
 
 # install any that are not here
 install_em <- setdiff(packs, rownames(installed.packages()))
@@ -60,7 +60,7 @@ $$
 
 Inbreeding in a population violates one of the many assumptions required for Hardy-Weinberg
 equilibrium to hold.  We model inbreeding here as a property of the pair of gene copies
-that occur in an individual in the population, and we measure it with the populution
+that occur in an individual in the population, and we measure it with the population
 inbreeding coefficient, $f$, which can be interpreted as the probability
 that the pair of gene copies in an individual randomly sampled from the population are _identical
 by descent_, or IBD for short.  For our purposes in this session, we will take "identical by descent" to mean that
@@ -71,11 +71,11 @@ two gene copies are IBD, then they must also be the same allelic type.  In other
 words, if two gene copies are IBD, and the first of them is allele $A$, then the second must
 also be allele $A$.  
 
-So, given a population inbreeding coefficient $f$, we can compute the probability that
+So, given the inbreeding coefficient $f$, we can compute the probability that
 a randomly sampled individual has the genotype $AA$, $Aa$, or $aa$.  First, let us consider
-$P(AA)$: with probability $f$ the individual is inbred, in which case only the first gene copy
-must by $A$, since the second one will be too.  On the other hand, with probability $(1-f)$ the
-individual is not inbred, and so the probability of being $AA$ is just the standard Hardy-Weinberg 
+$P(AA)$: with probability $f$ the two gene copies at a locus in the individual are IBD, 
+in which case only the first gene copy must by $A$, since the second one will be too.  On the other hand, with probability $(1-f)$ the two gene copies at the locus in the
+individual are not IBD, and so the probability of being $AA$ is just the standard Hardy-Weinberg 
 probability, $P_\mathrm{HW}(AA) = p^2$.  Hence, under the inbreeding model:
 $$
 \begin{aligned}
@@ -88,7 +88,7 @@ $$
 ### The likelihood
 Now recall that our data are $(n_{AA}, n_{Aa}, n_{aa})$---the numbers of the different genotypes
 observed in the sample.  To move forward in inference, we need to be able to compute the 
-likelihood, the probability of our data given the values of the parameters: $P(n_{AA}, n_{Aa}, n_{aa}|p,f)$.
+likelihood, which is the probability of our data given the values of the parameters: $P(n_{AA}, n_{Aa}, n_{aa}|p,f)$.
 Note here that the two parameters in our model are $p$, the frequency of the $A$ allele in the population,
 and $f$, the population inbreeding coefficient.  We assume that each individual is sampled independently
 from the population, so the likelihood is a multinomial:
@@ -105,7 +105,7 @@ The multinomial coefficient is a constant with respect to $p$ and $f$ so it will
 We need priors of $p$ and $f$.  These are proportions, so a natural choice is the beta distribution.  
 Let's define $f \sim \mathrm{Beta}(\alpha_f, \beta_f)$ and $p \sim \mathrm{Beta}(\alpha_p, \beta_p)$,
 and we will set up our model that way, though the default values we will use are
-$\alpha_f = \beta_f = \alpha_p = \beta_p = 1$ which give us uniform priors for $f$ and $p$.  
+$\alpha_f = \beta_f = \alpha_p = \beta_p = 1$ which will give us uniform priors for $f$ and $p$.  
 
 ### The joint probability
 
@@ -139,7 +139,7 @@ $$
 We will implement this in a function that returns the _log_ of the above quantity
 so that we won't run into underflow issues with very large samples:
 ```{r joint}
-#' the log of joint probability of all the data and parmaters given the priors
+#' the log of the joint probability of all the data and paramaters given the priors
 #'
 #' This is computed having dropped all the constant factors in the probability.
 #' @param n a vector of three elements: (nAA, nAa, naa), the number of AA's, the
@@ -151,19 +151,19 @@ so that we won't run into underflow issues with very large samples:
 log_joint_prob <- function(n, f, p, pri = c(1, 1, 1, 1)) {
   # not going to do much error checking here
   
-  # compute the raw values
-  ret <- log(f) * (pri[1] - 1) + 
-    log(1 - f) * (pri[2] - 1) +
-    log(p) * (pri[3] - 1) +
-    log(1 - p) * (pri[4] - 1) +
-    log(f * p + (1 - f) * p ^2) * n[1] +
-    log((1 - f) * 2 * p * (1 - p)) * n[2] + 
-    log(f * (1 - p) + (1 - f) * (1 - p) ^ 2) * n[3]
+  # compute the raw values, anything outside of the unit interval we will send
+  # back as NaN
+  ifelse(f <= 0 | f >= 1 | p <= 0 | p >= 1, NaN,
+         log(f) * (pri[1] - 1) + 
+           log(1 - f) * (pri[2] - 1) +
+           log(p) * (pri[3] - 1) +
+           log(1 - p) * (pri[4] - 1) +
+           log(f * p + (1 - f) * p ^ 2) * n[1] +
+           log((1 - f) * 2 * p * (1 - p)) * n[2] + 
+           log(f * (1 - p) + (1 - f) * (1 - p) ^ 2) * n[3])
   
-  # then return NaN anywhere that p or f were not strictly <1 or >0 
-  ret[f <= 0 | f >= 1 | p <=0 | p>= 1] <- NaN
   
-  ret
+
 }
 ```
 Note that this function is vectorized over $f$ and $p$, but not $n$ or the priors.
@@ -210,21 +210,21 @@ revolve it, and you can also look at individual values by mousing over within th
 ## "2-D" Metroplois-Hastings Sampler
 
 We now start our forays into different MCMC samplers, roughly following the lecture notes from the session. 
-The first is a sampler in which we propose changes to both $f$ and $p$ and then we accept or reject those
-proposals according to the Hastings Ratio.
+The first is a sampler in which we propose changes to both $f$ and $p$ and then we accept or reject both of those
+proposaled changes, together, in one fell swoop, according to the Hastings Ratio.
 
 For our proposals in this case we will use two independent, symmmetrical normal distributions centered
 on the current values.  We will wrap up the whole process in a single function
 called `mcmc_2d_mh()`.
 ```{r}
-#' function to do MCMC using a "2-D" Metroplis-Hastings sampler
+#' function to do MCMC using a "2-D" Metropolis-Hastings sampler
 #' @param ndata a three-vector (nAA, nAa, naa) of the observed data
 #' @param pri a vector of four components: (alpha_f, beta_f, alpha_p, beta_p)
 #' @param init a two vector of starting values (f, p).  Each should be within the
 #' unit interval.
 #' @param sweeps the number of sweeps (i.e proposed changes) to do in the MCMC chain.
-#' @param f_sd the standard deviation of the normal distribution used for proposing new values to f
-#' @param p_sd the standard deviation of the normal distribution used for proposing new values to f
+#' @param f_sd the standard deviation of the normal distribution for proposing new values to f
+#' @param p_sd the standard deviation of the normal distribution for proposing new values to p
 #' @return returns a tibble of proposals made, values visited, values of MH ratio, etc
 mcmc_2d_mh <- function(ndata, 
                        pri = c(1, 1, 1, 1), 
@@ -236,14 +236,14 @@ mcmc_2d_mh <- function(ndata,
   # create vectors in which to store output. Note that we will be storing 
   # the proposed values and the MH-ratio each sweep, too, for later analysis.
   f <- p <- fprop <- pprop <- mh_ratio <- rep(NA_real_, sweeps + 1)
-  accepted_f <- accepted_f <- rep(NA, sweeps + 1)
+  accepted_f <- accepted_p <- rep(NA, sweeps + 1)
   
   # put initial values in
   f[1] <- init[1]
   p[1] <- init[2]
   
   # then cycle over sweeps
-  for(i in 1:sweeps) {
+  for (i in 1:sweeps) {
     
     # propose new values
     fprop[i] <- rnorm(1, f[i], f_sd)
@@ -255,26 +255,25 @@ mcmc_2d_mh <- function(ndata,
     mh_ratio[i] <- exp(log_joint_prob(ndata, fprop[i], pprop[i], pri) -
       log_joint_prob(ndata, f[i], p[i], pri))
     
-    # now, accept proposal with probability that is the min(1, MH-ratio).
-    # Easy way of doing this is simulating a uniform random variable, U, on (0, 1)
-    # and accepting if U < MH-ratio
-    U <- runif(1)
-    if(U < mh_ratio[i]) {
-      accepted_f[i] <- TRUE
-      accepted_p[i] <- TRUE
-      f[i + 1] <- fprop[i]
-      p[i + 1] <- pprop[i]
-    } else { # if not accepted, then make f and p next step the same as current step
+    # now, if mh_ratio[i] is NaN it means that f or p was proposed outside of the unit interval
+    # and it should be rejected immediately.  If not, then we simulate a uniform R.V. on (0, 1)
+    # and reject the proposal if that number is greater than the MH-ratio.
+    if (is.nan(mh_ratio[i]) || runif(1) > mh_ratio[i]) {# reject!
       accepted_f[i] <- FALSE
       accepted_p[i] <- FALSE
       f[i + 1] <- f[i]
       p[i + 1] <- p[i]
+    } else {# accept!
+      accepted_f[i] <- TRUE
+      accepted_p[i] <- TRUE
+      f[i + 1] <- fprop[i]
+      p[i + 1] <- pprop[i]
     }
     
   }
   
   # in the end, make a tibble and return
-  tibble(sweep = 1:(sweeps+1),
+  tibble(sweep = 1:(sweeps + 1),
          f = f,
          p = p, 
          proposed_f = fprop,
@@ -285,4 +284,384 @@ mcmc_2d_mh <- function(ndata,
          )
 }
 ```
+
+**A brief note:** In the above function (and the one following) we are being careful to record
+not just the current state of the chain, but also
+every _proposed_ value.  Typically this is not done in MCMC.  Rather, it is more usual to simply
+record the state of the chain at each sweep (or at some "thinned" interval of sweeps). However
+we wanted to keep a full record of the progression of all the variables so that they would be
+available for  students to peruse or analyze. 
+
+Let's give it a run and make sure the means are correct:
+```{r}
+states <- mcmc_2d_mh(ndata = c(30, 10, 10), pri = c(1, 1, 1, 1))
+
+states %>%
+  filter(sweep > 100) %>%
+  summarise(mean_p = mean(p),
+            mean_f = mean(f))
+```
+
+## Component-wise Metropolis-Hastings Sampler
+
+Rather than proposing changes to both $f$ and $p$ before accepting or rejecting them,
+we can propose just a change to $f$ (say) and accept or reject the proposal, and then propose just a change
+to $p$, and then accept or reject that.  This is called component-wise Metropolis-Hastings sampling. 
+Underlying it is a central theme in MCMC, which is that just one or a few dimensions can be changed
+with each proposal, but as long as the acceptance or rejection of each proposal is done in
+a way that satisfies detailed balance, _and_ as long as all the different types of proposals,
+when used together create an irreducible chain around the space, then you get a valid MCMC sampler.
+
+We make a function that looks much like `mcmc_2d_mh()`, but in which the proposal and acceptance steps
+for $f$ and $p$ are done separately within each sweep. This is going to look a little bit weird
+because we do each update within the sweep but set the new value of $f$ in the "next" sweep.
+(You'll see below...)
+```{r}
+#' function to do MCMC using a component-wise Metropolis-Hastings sampler
+#' @param ndata a three-vector (nAA, nAa, naa) of the observed data
+#' @param pri a vector of four components: (alpha_f, beta_f, alpha_p, beta_p)
+#' @param init a two vector of starting values (f, p).  Each should be within the
+#' unit interval.
+#' @param sweeps the number of sweeps (i.e proposed changes) to do in the MCMC chain.
+#' @param f_sd the standard deviation of the normal distribution for proposing new values to f
+#' @param p_sd the standard deviation of the normal distribution for proposing new values to p
+#' @return returns a tibble of proposals made, values visited, values of MH ratio, etc
+mcmc_cw_mh <- function(ndata, 
+                       pri = c(1, 1, 1, 1), 
+                       init = c(.2, .5), 
+                       sweeps = 500,
+                       f_sd = 0.07,
+                       p_sd = 0.07) {
+
+  # create vectors in which to store output. Note that we will be storing 
+  # the proposed values and the MH-ratio each sweep, too, for later analysis.
+  f <- p <- fprop <- pprop <- mh_ratio_f <- mh_ratio_p <- rep(NA_real_, sweeps + 1)
+  accepted_f <- accepted_p <- rep(NA, sweeps + 1)
+  
+  # put initial values in
+  f[1] <- init[1]
+  p[1] <- init[2]
+  
+  # then cycle over sweeps
+  for (i in 1:sweeps) {
+    
+    # propose new value for f
+    fprop[i] <- rnorm(1, f[i], f_sd)
+    
+    # compute the hastings ratio with only a change to f proposed
+    mh_ratio_f[i] <- exp(log_joint_prob(ndata, fprop[i], p[i], pri) -
+      log_joint_prob(ndata, f[i], p[i], pri))
+    
+    # then accept or reject it
+    U <- runif(1)
+    if (is.nan(mh_ratio_f[i]) | runif(1) > mh_ratio_f[i]) {# reject!
+      accepted_f[i] <- FALSE
+      f[i + 1] <- f[i]
+    } else {# if accepted, then update the value of f
+      accepted_f[i] <- TRUE
+      f[i + 1] <- fprop[i] # set the value.  This is a little weird because we are still in sweep i.
+    }
+    
+    # now, the current value of f is stored in f[i + 1], and we propose a new value for p
+    pprop[i] <- rnorm(1, p[i], p_sd)
+    
+     # compute the hastings ratio using the new f and the proposed value of p
+    mh_ratio_p[i] <- exp(log_joint_prob(ndata, f[i + 1], pprop[i], pri) -
+      log_joint_prob(ndata, f[i + 1], p[i], pri))
+    
+    
+    # and reject or accept the proposal
+    if (is.nan(mh_ratio_p[i]) | runif(1) > mh_ratio_p[i]) {# reject!
+      accepted_p[i] <- FALSE
+      p[i + 1] <- p[i]
+    } else {# if not accepted then make p the same as the current p
+      accepted_p[i] <- TRUE
+      p[i + 1] <- pprop[i]
+    }
+    
+  }
+  
+  # in the end, make a tibble and return
+  tibble(sweep = 1:(sweeps + 1),
+         f = f,
+         p = p, 
+         proposed_f = fprop,
+         proposed_p = pprop,
+         mh_ratio_f = mh_ratio_f,
+         mh_ratio_p = mh_ratio_p,
+         accepted_f = accepted_f,
+         accepted_p = accepted_p
+         )
+}
+```
+
+Try it out:
+```{r}
+cw <- mcmc_cw_mh(ndata = c(30, 10, 10))
+
+cw %>%
+  filter(sweep > 100) %>%
+  summarise(mean_p = mean(p),
+            mean_f = mean(f))
+```
+
+## Some exercises for the extremely motivated
+
+1. Which sampler has a higher proportion of acceptances?
+2. Which sampler has lower autocorrelation between values.  You can use the `acf` function.
+3. Which sampler takes longer per sweep? (Try using `microbenchmark`)
+
+## The Gibbs sampler
+
+Implementing a Gibbs sampler is made easy by attaching to each of the 50 observed genotypes, a
+_latent variable_ which indicates whether the two gene copies at the locus in that individual
+are IBD or not.  In order to do this, we must now treat each individual as an observation, rather
+than just summarizing the number of AA's, Aa's, and aa's.  However, we can still pass the data
+into our function as, for example, `ndata = c(30, 10, 10)`, and then expand that into a list of 
+individual IDs within the function.
+
+Using the Gibbs sampler a sweep of our algorithm will involve three steps:
+
+1. simulate new values for the latent variables ($U$ in the lecture notes) from their full conditionals.
+2. simulate a new value of $f$ from its full conditional.
+3. simulate a new value of $p$ from its full conditional.
+
+The lecture notes from session 4 don't go into much detail about the exact
+form of the full conditionals.  For $f$ and $p$ it is pretty easily understood
+from the session that they will be beta distributions.  Here, however, it will
+behoove us to explicitly derive the full conditional for
+the latent variables.  Let's refresh our memory by looking at the DAG for the model
+with the latent variables:
+```{r echo=FALSE}
+knitr::include_graphics("inputs/inbreeding_dag.png")
+```
+
+Aha! Knowing what we do about how DAGs tell us about the factorization of
+joint probability distributions, this shows us that $U_i$, the latent indicator
+of IBD status for individual $i$, will appear in terms in the joint probability
+that looks like:
+$$
+P(U_i|f)P(Y_i|U_i, p)
+$$
+Let's say that $U_i = 1$ means the individual is inbred (i.e. carries
+two gene copies that are IBD) at the locus, and $U_i=0$ means the individual's
+gene copies are not IBD at the locus.  
+The first term is hence a simple Bernoulli proportion, i.e. $P(U_i = 1 |f) = f$.
+
+The second term is the probabilty of the individual having a genotype given the two
+gene copies are IBD or not.  These can be simply enumerated:
+$$
+\begin{aligned}
+P(Y_i = AA | U_i = 0, p) &= p^2  & P(Y_i = AA | U_i = 1, p) &= p \\
+P(Y_i = Aa | U_i = 0, p) &= 2p(1-p)  & P(Y_i = Aa | U_i = 1, p) &= 0 \\
+P(Y_i = aa | U_i = 0, p) &= (1-p)^2  & P(Y_i = aa | U_i = 1, p) &= (1-p)
+\end{aligned}
+$$
+These follow simply from the fact that if $U_i=0$ the two gene copies are assumed to be drawn 
+independently from the population allele frequency, and if $U_i=1$ then the first gene copy is
+drawn from the population allele frequency, and the allelic type of the second is simply 
+always that of the first.
+
+To compute the full conditional for $U_i$ we need to compute $P(U_i|f)P(Y_i|U_i, p)$ for the individuals
+fixed genotypes $Y_i$ and for the current values of $f$ and $p$, for both $U_i=0$ and $U_i=1$, and then
+normalize the probability so that it sums to 1 over the two possible values of $U_i$.  For example:
+$$
+\begin{aligned}
+P(U_i = 1 | Y_i = AA, p, f) &= \frac{P(U_i=1|f)P(Y_i=AA|U_i=0, p)}
+{P(U_i=0|f)P(Y_i=AA|U_i=0, p) + {P(U_i=1|f)P(Y_i=AA|U_i=0, p)}} \\
+&= \frac{fp}
+{(1-f)p^2 + fp}
+\end{aligned}
+$$
+
+Of course, if the individual is heterozygous, we know that its two gene copies cannot be IBD, so
+$P(U_i = 1|Y_i = Aa, p, f) = 0$.
+
+
+Now, let's write that function!
+```{r}
+#' function to do MCMC using a Gibbs sampler
+#'
+#' Note that we no longer need the f_sd and p_sd parameters. The Gibbs sampler
+#' will be making proposals from the full conditional distribution!
+#' @param ndata a three-vector (nAA, nAa, naa) of the observed data
+#' @param pri a vector of four components: (alpha_f, beta_f, alpha_p, beta_p)
+#' @param init a two vector of starting values (f, p).  Each should be within the
+#' unit interval.
+#' @param sweeps the number of sweeps (i.e proposed changes) to do in the MCMC chain.
+#' @return returns a tibble of proposals made, values visited, values of MH ratio, etc
+mcmc_gibbs <- function(ndata, 
+                       pri = c(1, 1, 1, 1), 
+                       init = c(.2, .5), 
+                       sweeps = 500) {
+  
+  # first arrange the data into individual observations, AA's first, then Aa's, then aa's
+  # We will make the genotypes factors, so AA = 1, Aa = 2, and aa = 3, so that we can count
+  # them up easily and have them ordered consistently.
+  obs_data <- rep(c("AA", "Aa", "aa"), times = ndata) %>%
+    factor(levels = c("AA", "Aa", "aa"))
+  
+  latent_ibd <- logical(length(obs_data)) # vector of latent flags that tell us whether each 
+                                          # individual carries gene copies that are IBD or not
+  
+  latent_probs <- numeric(length(obs_data)) # a vector for holding the full conditional probabilities
+                                            # of the latent_ibd variables
+  
+  # initialize f and p
+  f <- p <- rep(NA_real_, sweeps)
+  f[1] <- init[1]
+  p[1] <- init[2]
+  
+  # then given initial values for f and p, initialize the latent_ibd vars (the vector of U_i's)
+  # first compute the full conditionals
+  latent_probs <- ifelse(obs_data == "AA", f[1] * p[1] / (f[1] * p[1] + (1 - f[1]) * p[1] ^ 2),
+                  ifelse(obs_data == "Aa", 0,
+                  ifelse(obs_data == "aa", f[1] * (1 - p[1]) / (f[1] * (1 - p[1]) + (1 - f[1]) * (1 - p[1]) ^ 2), NA))) 
+  
+  # then simulate from them. TRUE = inbred, FALSE = not inbred
+  latent_ibd <- runif(n = length(latent_probs)) < latent_probs
+
+  
+  # now do the sweeps.  In each one the steps are:
+  #   1. simulate a new value of f from its full conditional.
+  #   2. simulate a new value of p from its full conditional.
+  #   3. simulate new values for latent_ibd from their full conditionals.
+  # Every proposal will be accepted, so we will not bother recording the value of the
+  # proposed values like we did above 
+  for (i in 2:sweeps) {
+    # 1.  simulate a new value of f from its full conditional.
+    # recall that alpha_f is in pri[1] and beta_f is in pri[2]
+    ibd_counts <- table(latent_ibd)  # returns vector of number of FALSEs and number of TRUEs
+    f[i] <- rbeta(n = 1, shape1 = ibd_counts[2] + pri[1], shape2 = ibd_counts[1] + pri[2])
+    
+    # 2. simulate a new value of p from its full conditional.
+    # recall that alpha_p is in pri[3] and beta_p is in pri[4]
+    # we have to count up gene copies: two for each non-inbred individual and only
+    # one for each inbred individual.  We want to get the number of A's and a's this way
+    
+    # count the number of different genotypes that are non-IBD
+    nibd_genos <- table(obs_data[latent_ibd == FALSE])
+    # then add up the number of As and as
+    nibd_A = 2 * nibd_genos["AA"] + nibd_genos["Aa"] 
+    nibd_a = 2 * nibd_genos["aa"] + nibd_genos["Aa"] 
+    
+    # then do something similar for the genotypes that are IBD
+    ibd_genos <- table(obs_data[latent_ibd == TRUE])
+    ibd_A = ibd_genos["AA"]
+    ibd_a = ibd_genos["aa"]
+    
+    # then simulate p
+    p[i] <- rbeta(n = 1, shape1 = pri[3] + nibd_A + ibd_A, shape2 = pri[4] + nibd_a + ibd_a)
+    
+    # 3. simulate new values for latent_ibd from their full conditionals
+    latent_probs <- ifelse(obs_data == "AA", f[i] * p[i] / (f[i] * p[i] + (1 - f[i]) * p[i] ^ 2),
+                  ifelse(obs_data == "Aa", 0,
+                  ifelse(obs_data == "aa", f[i] * (1 - p[i]) / (f[i] * (1 - p[i]) + (1 - f[i]) * (1 - p[i]) ^ 2), NA))) 
+  
+  # then simulate from them. TRUE = inbred, FALSE = not inbred
+  latent_ibd <- runif(n = length(latent_probs)) < latent_probs
+  }
+  
+  # at the end return a tibble
+  tibble(sweep = 1:sweeps,
+         f = f,
+         p = p
+         )
+  
+}
+
+```
+
+
+## Collect Samples
+
+Now, we can collect samples from all three samplers.  Let's go ahead and put them all
+together into a tidy data frame. Let's do 5,000 sweeps...
+```{r}
+set.seed(10)
+the_sample <- list(two_d = mcmc_2d_mh(ndata, sweeps = 5000),
+                   comp_wise = mcmc_cw_mh(ndata, sweeps = 5000),
+                   gibbs = mcmc_gibbs(ndata, sweeps = 5000)) %>%
+  bind_rows(.id = "sampler")
+```
+
+### Posterior means for $f$ and $p$
+Compute posterior means:
+```{r}
+the_sample %>% 
+  filter(sweep > 200) %>%
+  group_by(sampler) %>%
+  summarise(mean_f = mean(f),
+            mean_p = mean(p))
+```
+
+### Plot the results
+
+Then plot the results, tossing the first 200 as burn in:
+```{r}
+ggplot(the_sample %>% filter(sweep > 200), aes(x = f, y = p)) +
+  geom_point(size = 0.3, alpha = 0.3, colour = "gray") +
+#  stat_density_2d(aes(fill = ..level..), geom = "polygon") +
+  geom_density_2d(colour = "black") +
+  facet_wrap(~ sampler) +
+#  scale_fill_viridis() +
+  xlim(0, 1) +
+  ylim(0, 1) +
+  theme_bw()
+```
+
+That looks like everything is working.  From the sample of points 
+(in gray) visited by each chain we can make an estimate of the
+2-D posterior surface.
+
+If we wanted to look at that surface with some colors denoting actual values 
+we could do this:
+```{r}
+ggplot(the_sample %>% filter(sweep > 200), aes(x = f, y = p)) +
+  stat_density_2d(aes(fill = ..level..), geom = "polygon") +
+  facet_wrap(~ sampler) +
+  scale_fill_viridis() +
+  xlim(0, 1) +
+  ylim(0, 1)
+```
+
+Cool.
+
+### Which sampler mixes better?
+
+This is an interesting question that students might want to explore a little. One way 
+to do that is to investigate the auto-correlation between different states visited 
+by the chain.  That is, the correlation between the state at sweep $t$ and at sweep
+$t - \ell$ where $\ell$ is the "lag", and is usually investigated for a set of values from 
+$\ell = 0,\ldots,\mathrm{max~lag}$.    This can be computed with the `acf` function 
+in $R$.  To keep it tidy, we will use `dplyr::do` and `broom::tidy`, after `tidyr::gather()`ing
+the $f$ and $p$ values...
+```{r}
+auto_corrs <- the_sample %>% 
+  filter(sweep > 200)  %>%  # once again, toss the first 200 as burn-in
+  select(sampler, sweep, f, p) %>%
+  gather(key = "variable", value = "value", f, p) %>%
+  group_by(sampler, variable) %>%
+  do(tidy(acf(.$value, plot = FALSE)))
+
+auto_corrs
+```
+
+And now we can plot those:
+```{r}
+ggplot(auto_corrs, aes(x = lag, y = acf, colour = variable)) +
+  geom_segment(aes(xend = lag, yend = 0)) +
+  facet_grid(sampler ~ variable)
+```
+
+OK! Check that out.  It is quite clear that the Gibbs sampler is mixing better,
+especially for $p$---there is much less correlation between successive values in the
+MCMC chain.
+
+On the other hand, the astute student might notice that the Gibbs sampler takes a bit longer
+to run.  This is especially true in R (not so much difference in compiled code).  Nonetheless,
+this shows a fundamental tradeoff that often happens in MCMC: you can often get better mixing
+per-sweep by making more intelligent proposals.  But, if those proposals take a lot of extra time
+to compute (or if they are a shrieking horror to code up) it might not be worth it.  It is in
+making decisions like these where some of the fun "art" of implementing MCMC comes in.
 
