@@ -8,7 +8,7 @@ output:
 ---
 
 
-```{r, setup, echo=FALSE}
+```{r setup, echo=FALSE}
 library(knitr)
 opts_knit$set(root.dir = "~/Desktop/scot-cats/PlainPars")
 opts_chunk$set(comment = NA)
