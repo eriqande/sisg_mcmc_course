@@ -421,3 +421,9 @@ c(nAA = ((p_mean ^ 2) + (f_mean * (1 - p_mean) * p_mean)) * N,
 ```
 
 Yep...that looks like our observed data...
+
+## Session Info
+```{r}
+sessionInfo()
+```
+
