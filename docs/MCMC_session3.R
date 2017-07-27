@@ -1,0 +1,320 @@
+# Session 3: Introduction to MCMC in R (Computing Practical)
+#
+# Note: anything following a # sign is a comment, and will be ignored by R
+# (this should make it easier to cut and paste things)
+#
+#
+# Example 1: sampling from an exponential distribution using MCMC
+#
+#
+# first: a few example lines of R
+x = seq(from = 0, to = 10, length=20)
+y = exp(-x)
+plot(x,y)
+lines(x,y) #lines adds lines to an existing plot
+
+# Now: set up a target function we want to sample from
+# In this case we are going to use the density of the exponential distribution
+
+target = function(x){
+  if(x<0){
+    return(0)}
+  else {
+    return( exp(-x))
+  }
+}
+
+#Try computing a couple of values
+target(3)
+target(-1)
+
+
+# Next, we will program a Metropolis--Hastings scheme to sample
+# from a distribution proportional to the target
+x = rep(0,1000)
+x[1] = 3     #this is just a starting value, which I’ve set arbitrarily to 3
+
+for(i in 2:1000){
+  currentx = x[i-1]
+  proposedx = currentx + rnorm(1,mean=0,sd=1)
+  A = target(proposedx)/target(currentx)
+  if(runif(1)<A){
+    x[i] = proposedx
+  } else {
+    x[i] = currentx
+  }
+}
+
+# note that x is a realisation of a Markov Chain
+# we can make a few plots of x:
+plot(x)
+hist(x)
+
+
+# We can wrap this up in a function to make things a bit neater,
+# and make it easy to try changing starting values and proposal distributions
+easyMCMC = function(niter, startval, proposalsd){
+  x = rep(0,niter)
+  x[1] = startval
+  for(i in 2:niter){
+    currentx = x[i-1]
+    proposedx = rnorm(1,mean=currentx,sd=proposalsd)
+    A = target(proposedx)/target(currentx)
+    if(runif(1)<A){
+      x[i] = proposedx
+    } else {
+      x[i] = currentx
+    }
+  }
+  return(x)
+}
+
+
+#Now we’ll run the MCMC scheme 3 times,
+#and look to see how similar the results are
+z1=easyMCMC(1000,3,1)
+z2=easyMCMC(1000,3,1)
+z3=easyMCMC(1000,3,1)
+plot(z1,type="l")
+lines(z2,col=2)
+lines(z3,col=3)
+par(mfcol=c(3,1)) #rather odd command tells R to put 3 graphs on a single page
+hist(z1)
+hist(z2)
+hist(z3)
+
+# Exercises: use the function easyMCMC to explore the following:
+#
+# 1a) how do different starting values affect the MCMC scheme?
+sv <- seq(1,50,1)
+z1 <- list()
+for(i in 1:length(sv)){
+  z1[[i]]=easyMCMC(1000,sv[i],1)
+}
+plot(sv,as.numeric(lapply(z1,mean)), xlab="starting value", ylab="posterior mean")
+plot(sv,sqrt(as.numeric(lapply(z1,sd))), xlab="starting value", ylab="posterior variance")
+hist(z1[[1]])
+hist(z1[[25]])
+hist(z1[[50]])
+plot(z1[[1]], type="l")
+plot(z1[[20]], type="l")
+plot(z1[[50]], type="l")
+
+
+# 1b) what is the effect of having a bigger/smaller proposal standard deviation?
+prop_sd <- seq(1,100,1)
+z2 <- list()
+for(i in 1:length(prop_sd)){
+  z2[[i]]=easyMCMC(1000,3,prop_sd[i])
+}
+plot(prop_sd,as.numeric(lapply(z2,mean)), xlab="starting value", ylab="posterior mean")
+plot(prop_sd,sqrt(as.numeric(lapply(z2,sd))), xlab="starting value", ylab="posterior variance")
+hist(z2[[1]])
+hist(z2[[25]])
+hist(z2[[50]])
+plot(z2[[1]], type="l")
+plot(z2[[20]], type="l")
+plot(z2[[50]], type="l")
+
+
+# 1c) try changing the target function to the following
+#
+target = function(x){
+  return((x>0 & x <1) + (x>2 & x<3))
+}
+
+# What does this target look like? BIMODAL
+x <- seq(0,10,0.1)
+hist(target(x))
+target(x)
+# returning values only in two groups between 0 and 1 and between 2 and 3
+z1=easyMCMC(1000,2.5,1)
+z2=easyMCMC(1000,1.5,1)
+z3=easyMCMC(1000,0.5,1)
+hist(z1)
+hist(z2)
+hist(z3)
+plot(z1, type="l")
+plot(z2, type="l")
+plot(z3, type="l")
+
+
+
+# What happens if the proposal sd is too small here? (try eg 1 and 0.1)
+# values within the two groups work 
+z1=easyMCMC(1000,2.5,0.1)
+z2=easyMCMC(1000,0.5,0.1)
+hist(z1, xlim=c(0,3))
+hist(z2, xlim=c(0,3))
+plot(z1, type="l", ylim=c(0,3))
+points(z2, type="l", col="dark grey")
+
+# starting values outside groups may not run
+z1=easyMCMC(1000,1.5,0.1)
+hist(z1)
+plot(1:1000,z1)
+
+
+
+
+
+
+
+
+#-----------------------------------------------------------
+# Example 2: Estimating an allele frequency
+#
+# A standard assumption when modelling genotypes of
+# bi-allelic loci (eg loci with alleles A and a) is
+# that the population is "randomly mating". From this assumption
+# it follows that the population will be in
+# "Hardy Weinberg Equilibrium" (HWE), which means that
+# if p is the frequency of the allele A then the
+# genotypes AA, Aa and aa will have frequencies
+# p*p, 2p(1-p) and (1-p)*(1-p)
+#
+# A simple prior for p is to assume it is uniform on [0,1].
+# Suppose that we sample n individuals, and observe nAA with genotype AA,
+# nAa with genotype Aa and naa with genotype aa.
+#
+# The following R code gives a short MCMC routine to sample from the posterior
+# distribution of p. Try to go through the code to see how it works.
+
+prior = function(p){
+  if((p<0) || (p>1)){ # || here means "or"
+    return(0)} 
+  else{ 
+    return(1)} 
+}
+
+likelihood = function(p, nAA, nAa, naa){
+  return(p^(2*nAA) * (2*p*(1-p))^nAa * (1-p)^(2*naa))
+}
+
+psampler = function(nAA, nAa, naa, niter, pstartval, pproposalsd){
+  p = rep(0,niter)
+  p[1] = pstartval
+  for(i in 2:niter){
+    currentp = p[i-1]
+    newp = currentp + rnorm(1,0,pproposalsd)
+    A = prior(newp)*likelihood(newp,nAA,nAa,naa)/(prior(currentp) * likelihood(currentp,nAA,nAa,naa))
+    if(runif(1)<A){
+      p[i] = newp
+    } 
+    else {
+      p[i] = currentp
+    }
+  }
+  return(p)
+}
+
+# running this sample for nAA = 50, nAa = 21, naa=29.
+z=psampler(50,21,29,10000,0.5,0.01)
+
+# Now some R code to compare the sample from the posterior
+# with the theoretical posterior (which in this case is available analytically;
+# from lecture 1, since we observed 121 As, and 79 as, out of 200, the posterior
+# for p is beta(121+1,79+1). See notes from Session 1.
+par(mfcol=c(1,1))
+x=seq(0,1,length=1000)
+hist(z,prob=T, xlim=c(0.4,0.8), col="dark grey", ylim=c(0,20), main="")
+lines(x,dbeta(x,122, 80))  # overlays beta density on histogram
+
+# You might also like to discard the first 5000 z’s as "burnin"
+# here’s one way in R to select only the last 5000 zs
+par(new=T)
+hist(z[5001:10000], prob=T, col="light grey",  xlim=c(0.4,0.8), ylim=c(0,20), main="")
+
+#
+#
+# Some things to try: how do the starting point and proposal sd affect things?
+#
+
+
+
+#--------------------------------------------------------------------------------------
+# Example 3: Estimating an allele frequency and inbreeding coefficient
+# (If time allows!)
+#
+# A slightly more complex alternative than HWE is to assume that
+# there is a tendency for people to mate with others who are
+# slightly more closely-related than "random" (as might
+# happen in a geographically-structured population, for example).
+# This will result in an excess of homozygotes compared with
+# HWE. A simple way to capture this is to introduce an extra parameter,
+# the "inbreeding coefficient" f, and assume that the genotypes
+# AA, Aa and aa have frequencies fp + (1-f)p*p, (1-f) 2p(1-p)
+# and f(1-p) + (1-f)(1-p)(1-p)
+#
+# In most cases it would be natural to treat f as a feature of
+# the population, and therefore assume f is constant across loci.
+# For simplicity we will consider just a single locus.
+# Note that both f and p are constrained to lie between 0 and 1
+# (inclusive). A simple prior for each of these two parameters is to assume
+# that they are independent, uniform on [0,1]. Suppose
+# that we sample n individuals, and observe nAA with genotype AA,
+# nAa with genotype Aa and naa with genotype aa.
+#
+# Exercise: write a short MCMC routine to sample from the joint
+# distribution of f and p.
+#
+# Hint: here is a start; you’ll need to fill in the ...
+#
+
+prior = function(p){
+  if((p<0) || (p>1)){ # || here means "or"
+    return(0)} 
+  else{ 
+    return(1)} 
+}
+
+
+likelihood = function(p, f, nAA, nAa, naa){
+  return(((f*p) + ((1-f)*(p^2)))^nAA * ( (1-f)*2*p*(1-p))^nAa * ( f*(1-p) + (1-f)*((1-p)*(1-p)))^naa)
+}
+
+
+fpsampler = function(nAA, nAa, naa, niter, fstartval, pstartval, fproposalsd, pproposalsd){
+  f = rep(0,niter)
+  p = rep(0,niter)
+  f[1] = fstartval
+  p[1] = pstartval
+  for(i in 2:niter){
+    currentp = p[i-1]
+    currentf = f[i-1]
+    newp = currentp + rnorm(1,0,pproposalsd)
+    A = prior(newp)*likelihood(newp,currentf,nAA,nAa,naa)/(prior(currentp) * likelihood(currentp,currentf,nAA,nAa,naa))
+    if(runif(1)<A){
+      p[i] = newp
+    } 
+    else {
+      p[i] = currentp
+    }
+    newf = currentf + rnorm(1,0,fproposalsd)
+    A = prior(newf)*likelihood(p[i],newf,nAA,nAa,naa)/(prior(currentf) * likelihood(p[i],currentf,nAA,nAa,naa))
+    if(runif(1)<A){
+      f[i] = newf
+    } 
+    else {
+      f[i] = currentf
+    }
+  }
+  return(list(f=f,p=p)) # return a "list" with two elements named f and p
+}
+
+z=fpsampler(45,10,45,10000,0.8,0.5,0.01,0.01)
+x=seq(0,1,length=1000)
+hist(z$f[5000:10000],prob=T, xlim=c(0,1), col="dark grey", ylim=c(0,20), main="", xlab="posterior estimate")
+par(new=T)
+hist(z$p[5000:10000],prob=T, xlim=c(0,1), col="dark grey", ylim=c(0,20), main="", xlab="", ylab="")
+plot(z$f, type="l")
+plot(z$p, type="l")
+
+
+# estimate values from posterior estimate
+p=mean(z$p)
+f=mean(z$f)
+N=100
+((p^2) + (f*(1-p)*p))*N
+( (1-f)*2*p*(1-p))*N
+((f*(1-p)*p) + ((1-p)^2))*N
