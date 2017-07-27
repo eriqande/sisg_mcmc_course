@@ -54,7 +54,10 @@ dump <- lapply(names(sess), function(s) {
 })
 ```
 
+## Data sets
 
+- You can get the `cats.dat` data set by clicking [this link](https://raw.githubusercontent.com/eriqande/sisg_mcmc_course/master/computing_practicals/cats.dat), and 
+then copying the data and putting it into a text file on your computer named `cats.dat`.
 
 ## Additional Lecture-like things
 
