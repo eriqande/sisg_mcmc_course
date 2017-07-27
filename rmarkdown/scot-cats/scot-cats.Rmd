@@ -246,8 +246,7 @@ Qs2 <- L2$q %>%
   mutate(which_cluster = paste(rep1_cluster))  # name a new column with something better for the plot
 ```
 
-```{r}
-# plot those up:
+Plot those up:
 ```{r, fig.height=5, fig.width=14}
 ggplot(Qs2, aes(x = rep1_prob, y = probability, colour = which_cluster)) +
   geom_point() +
