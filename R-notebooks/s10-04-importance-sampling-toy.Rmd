@@ -1,0 +1,82 @@
+---
+title: "Importance Sampling Toy Examples"
+description: We illustrate a few points about importance sampling by estimating the area under a normal density and a Cauchy density.
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+---
+
+\usepackage{blkarray}
+\usepackage{amsmath}
+\newcommand{\bm}{\boldsymbol}
+\newcommand{\Exp}{\mathbbb{E}}
+\newcommand{\Ind}{\mathbbb{I}}
+
+Here we throw down some R code to demonstrate some principles 
+about importance sampling.  Our goals are to show what importance
+sampling is and also to stress that it can be fraught with peril when 
+your importance sampling function doesn't fit well, even in the tails
+of the distributions.
+
+We will start with a little bit of review.  Let's imagine that we
+are trying to integrate a function $g(x)$ over some region, $\mathcal{A}$:
+$$
+\int_{x\in\mathcal{A}} g(x)dx
+$$
+
+If you choose an importance sampling distribution $h(x)$ that defines a
+distribution for $x$ over $\mathcal{X}$, the set of all possible values
+of $x$, and which has the
+property that it is not
+equal to 0 anywhere in $\mathcal{A}$ where $g(x)\neq 0$, then you can multiply
+the integrand of the above integral by 1, expressed as $h(x)/h(x)$ without
+changing its value:
+$$
+\int_{x\in\mathcal{A}} g(x)dx = \int_{x\in\mathcal{A}} g(x)\frac{h(x)}{h(x)}dx
+$$
+
+$$
+\int_{x\in\mathcal{A}} g(x)dx = \int_{x\in\mathcal{A}} g(x)\frac{h(x)}{h(x)}dx
+$$
+
+Then you can just rearrange some terms to get:
+$$
+\int_{x\in\mathcal{A}} g(x)dx = \int_{x\in\mathcal{A}} g(x)\frac{h(x)}{h(x)}dx
+= \int_{x\in\mathcal{A}}\frac{g(x)}{h(x)}h(x)dx
+$$
+And, you can use an indicator function to turn the integral into something
+over all values of $x$:
+$$
+\int_{x\in\mathcal{A}} g(x)dx = \int_{x\in\mathcal{A}} g(x)\frac{h(x)}{h(x)}dx
+= \int_{x\in\mathcal{A}}\frac{g(x)}{h(x)}h(x)dx = 
+\int_{x\in\mathcal{X}}I\{x \in \mathcal{A}\}\frac{g(x)}{h(x)}h(x)dx
+$$
+Where $I\{x \in \mathcal{A}\}$ is and indicator function that takes the 
+value 1 when $x \in \mathcal{A}$ and 0 otherwise.  
+
+Now, since $h(x)$ is a probability density or mass function for the 
+random variable $x$, you can see that what we have on the right hand
+side of the above equation is the "integral over all all values of $x$
+of a function of $x$ ($I\{x \in \mathcal{A}\}\frac{g(x)}{h(x)}$)" times
+the probability of $x$ ($h(x)$)."  That should ring a bell: it is exactly
+the definition of the expectation of a function of a random variable:
+$$
+\int_{x\in\mathcal{X}}I\{x \in \mathcal{A}\}\frac{g(x)}{h(x)}h(x)dx = 
+E_h\biggl(I\{x \in \mathcal{A}\}\frac{g(x)}{h(x)}\biggr)
+$$
+Where we write the expectation operator $E$ with an $h$ subscript to
+emphasize that this expectation is taken according to the distribution
+$h$ of $x$.  
+
+Aha! We know that expected values can be approximated by Monte Carlo:
+$$
+E_h\biggl(I\{x \in \mathcal{A}\}\frac{g(x)}{h(x)}\biggr) \approx 
+\frac{1}{n}\sum_{i = 1}^n 
+I\{x^{(i)} \in \mathcal{A}\}\frac{g(x^{(i)})}{h(x^{(i)})}
+$$
+where each $x^{(i)}$ is a sample from the distribution $h(x)$.
+
+## Estimating the area under a normal density
+
+Imagine that $g(x)$ is the unit normal density, and 
