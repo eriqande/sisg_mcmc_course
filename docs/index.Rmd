@@ -63,4 +63,4 @@ then copying the data and putting it into a text file on your computer named `ca
 
 - [Thermodynamic Integration](./thermodynamic-integration.nb.html)
 - [Matthew Stephens' 5-minute Statistics Page](http://stephens999.github.io/fiveMinuteStats/)
-
+- [Monte Carlo Methods and Importance Sampling](http://ib.berkeley.edu/labs/slatkin/eriq/classes/guest_lect/mc_lecture_notes.pdf). A short thing that Eric wrote when a grad student and substitute lecturing.  This formed the basis for some of the material on vanilla Monte Carlo and Importance Sampling.
