@@ -95,12 +95,12 @@ superscript $(j)$ denotes the $j$-th iteration in the MCMC.  If there are additi
 model, consider them as included in $\btheta$ (at least for now).
 
 
-Averaging over the values of $\log[P(\bx|\btheta^{(j)}, M_i]$$ during MCMC gives a Monte Carlo estimate
+Averaging over the values of $\log[P(\bx|\btheta^{(j)}, M_i]$ during MCMC gives a Monte Carlo estimate
 of the posterior mean of the log likelihood function:
 $$
-\int_\btheta \log[P(x | \btheta, M_i)] P(\btheta | \bx, M_i) d\btheta  = 
-\int_\btheta \log[P(x | \btheta, M_i)] \biggl(\frac{P(x | \btheta, M_i) P(\btheta | M_i)}
-{\int_\btheta P(x | \btheta, M_i) P(\btheta | M_i)d\btheta}\biggr)
+\int_\btheta \log[P(\bx | \btheta, M_i)] P(\btheta | \bx, M_i) d\btheta  = 
+\int_\btheta \log[P(\bx | \btheta, M_i)] \biggl(\frac{P(\bx | \btheta, M_i) P(\btheta | M_i)}
+{\int_\btheta P(\bx | \btheta, M_i) P(\btheta | M_i)d\btheta}\biggr)
 d\btheta.
 $$
 This posterior mean is decidedly *not* the same as the log of the marginal likelihood.
@@ -133,16 +133,16 @@ exponential family form, in which case, raising it to the power of $\beta$ leads
 distribution in the same family.  
 
 If you can simulate via MCMC from the power posterior with exponent $\beta$,
-then you could also compute an estimate of the posterior mean of $\log[P(x | \btheta, M_i)]$
+then you could also compute an estimate of the posterior mean of $\log[P(\bx | \btheta, M_i)]$
 given $\beta$.  This, as before, is just the average of 
 $\log[P(\bx | \btheta^{(j)}, M_i)]$ over the course of the MCMC.  It is a Monte Carlo approximation to
 $$
-C(\beta; \bx, M_i) = \int_\btheta \log[P(x | \btheta, M_i)] P_\beta(\btheta | \bx, M_i) d\btheta  = 
-\int_\btheta \log[P(x | \btheta, M_i)] \biggl(\frac{[P(x | \btheta, M_i)]^\beta P(\btheta | M_i)}
-{\int_\btheta [P(x | \btheta, M_i)]^\beta P(\btheta | M_i)d\btheta}\biggr)
+C(\beta; \bx, M_i) = \int_\btheta \log[P(\bx | \btheta, M_i)] P_\beta(\btheta | \bx, M_i) d\btheta  = 
+\int_\btheta \log[P(\bx | \btheta, M_i)] \biggl(\frac{[P(\bx | \btheta, M_i)]^\beta P(\btheta | M_i)}
+{\int_\btheta [P(\bx | \btheta, M_i)]^\beta P(\btheta | M_i)d\btheta}\biggr)
 d\btheta
 $$
-Note that $\log[P(x | \btheta, M_i)]$, itself, is *not* raised to $\beta$ 
+Note that $\log[P(\bx | \btheta, M_i)]$, itself, is *not* raised to $\beta$ 
 (neither inside nor outside of the $\log$ function).
 
 In the next section, we will show how TI makes use of the fact that the log marginal likelihood
@@ -187,7 +187,7 @@ $$
 \biggr]
 $$
 Now, we are going to include 1 in there again in a tricky fashion---this time
-as the likelihood, $P(x | \btheta, M_i)$, raised to 0 in the right hand part. And we will also explicitly 
+as the likelihood, $P(\bx | \btheta, M_i)$, raised to 0 in the right hand part. And we will also explicitly 
 raise the likelihood where it appears in the left hand part to the power of 1.  Obviously we still have the
 same thing as above:
 $$
@@ -197,7 +197,7 @@ $$
 - 
 \log\biggl[  
 \int_\btheta 
-[P(x | \btheta, M_i)]^0
+[P(\bx | \btheta, M_i)]^0
 P(\btheta | M_i)d\btheta
 \biggr]
 $$
@@ -283,7 +283,7 @@ Therefore, we can just form MCMC approximations of $C(\beta; \bx, M_i)$ at many 
 0 and 1, and then approximate the integral by the trapezoidal rule or Simpson's method for approximating 
 integrals.  Both of which are straightforward.  Holy Cow! That is pretty cool.
 
-I currently don't know how workable this scheme is in practice (one big question is "how much Monte Carlo variance
+I currently don't know how workable this scheme is in practice. One big question is "how much Monte Carlo variance
 does one find when $\beta$ is small? Enough that it is very hard to estimate the mean log likelihood accurately when 
 $\beta$ is small?"  Some further work has been done on reducing the discretization error. See @friel2014.
 
