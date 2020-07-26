@@ -1,16 +1,15 @@
 \input{preamble.tex}
-\rhead{Session 10 - \thepage}
+\rhead{Session 10 -- Importance sampling and $(MC)^3$ -- \thepage}
 
 \newcommand{\bY}{{\bm{Y}}}
 \newcommand{\bX}{{\bm{X}}}
  
  
-\newlecture{The Bottom Drawer---A Variety of Topics}
+\newlecture{Importance Sampling and $(MC)^3$}
 The goals of this lecture are:
 \begin{itemize}
 \item Introduce {\em importance sampling}---a Monte Carlo variance reduction technique
-\item Explain how MCMC can be used to compute likelihood ratios
-\item Demonstrate MCMC in simple pedigrees and discuss problems of reducibility
+\item Discuss MCMC in simple pedigrees and discuss problems of reducibility
 \item Discuss poor mixing more generally and describe \\ Metropolis-coupled MCMC
 \end{itemize}
 
@@ -99,7 +98,7 @@ are most useful) is quite often a tall task.
 \end{center}
 ~~$h(x)\equiv\mathrm{Uniform}$\hfill $h(x)\equiv t_1$ Dist. \hfill $h(x)\equiv t_{30}$ Dist.~~~~
 
-\newslide{Example of importance sampling in genetics}
+\newslide{Examples of importance sampling in genetics}
 \begin{itemize}
 \item Griffiths and Tavare (1994) developed a ``recursion" method for simulating genealogies under the coalescent model conditional on genetic data at the tips of the branches (but not {\em exactly} from their distribution given the data).
 
@@ -108,6 +107,8 @@ are most useful) is quite often a tall task.
 \item It wasn't until somewhat later that Joe Felsenstein and his colleagues were able to dissect the method and show that it is an example of importance sampling. 
 
 \item Viewing the method as an importance sampling task, Matt Stephens and Peter Donnelly (2000) were able to improve upon the method considerably.
+
+\item Anderson and Garza (2006): importance sampling to estimate very small false positive rates when doing parentage inference with SNPs.
 \end{itemize}
 
 
@@ -135,34 +136,6 @@ The distribution of Monte Carlo estimates appears to the right.  The correct are
 
 
 
-\newslide{MCMC in a frequentist framework---not just for Bayesians anymore}
-Geyer and Thompson (1992) use an importance sampling method to compute likelihood ratios using MCMC.  
-\begin{itemize}
-\item The basic inference problem is to compute the relative likelihood for different values of $\theta$ given data $\bY$, but the likelihood $P_\theta(\bY)$ is an intractable sum over latent variables $\bX$:
-\[
-	P_\theta(\bY) = \sum_{\bX} P_\theta(\bY,\bX)
-\]
-\item We wish to be able to compute $P_\theta(\bY) / P_{\theta_{0}}(\bY)$---the ratio between the likelihood for some arbitrary $\theta$ and the likelihood for a fixed $\theta_0$.
-\item Geyer and Thompson found a tricky way of multiplying the above equation by 1 to get a useful result:
-\newpage
-\addtolength{\jot}{2ex}
-\begin{eqnarray*}
-P_\theta(\bY) & = &\sum_{\bX} P_\theta(\bY,\bX)\frac{P_{\theta_0}(\bY,\bX)}{P_{\theta_0}(\bY,\bX)} \\
-& = &\sum_{\bX} P_\theta(\bY,\bX)\frac{P_{\theta_0}(\bX|\bY)P_{\theta_0}(\bY)}{P_{\theta_0}(\bY,\bX)} \\
-\end{eqnarray*}   
-So,
-\[
-	\frac{P_\theta(\bY)}{P_{\theta_0}(\bY)} = \sum_{\bX} \frac{P_\theta(\bY,\bX)}{P_{\theta_0}(\bY,\bX)}
-	P_{\theta_0}(\bX|\bY) = 
-	\Exp_{\theta_0}\left[\left. \frac{P_\theta(\bY,\bX)}{P_{\theta_0}(\bY,\bX)}  \right| Y \right]
-\]
-\[
-	\frac{P_\theta(\bY)}{P_{\theta_0}(\bY)} \approx \frac{1}{n}\sum_{i=1}^n
-	 \frac{P_\theta(\bY,\bX^{(i)})}{P_{\theta_0}(\bY,\bX^{(i)})}~~~~\mathrm{with}~~~
-	 \bX^{(i)} \sim P_{\theta_0}(\bX|\bY)
-\]
-and $P_{\theta_0}(\bX|\bY)$ is a distribution known only up to scale, so it may be simulated from via MCMC.
-\end{itemize}
 
 
 \newslide{Switching gears---a simple example of MCMC on a pedigree with ``data at the bottom"}
