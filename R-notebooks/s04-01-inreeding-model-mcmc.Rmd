@@ -207,7 +207,7 @@ plot_ly(x = ~p_vals, y = ~f_vals, z = ~probs) %>%
 Try interacting with that plot, especially if you are not familiar with plotly.  You can zoom, pan, and
 revolve it, and you can also look at individual values by mousing over within the plot.
 
-## "2-D" Metroplois-Hastings Sampler
+## "2-D" Metropolis-Hastings Sampler
 
 We now start our forays into different MCMC samplers, roughly following the lecture notes from the session. 
 The first is a sampler in which we propose changes to both $f$ and $p$ and then we accept or reject both of those

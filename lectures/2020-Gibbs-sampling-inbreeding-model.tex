@@ -13,12 +13,13 @@
 
 
 
-\newlecture{Markov Chain Monte Carlo: \\  more complex examples}
+\newlecture{Gibbs Sampling in the inbreeding model\\
+and in the simple mixture model}
 Goals of this lecture:
 \begin{itemize}
-\item Consider MCMC in more than a single dimension
-\item Describe component-wise Metropolis-Hastings sampling 
-\item Introduce the idea of latent variables and show how they lend themselves to Gibbs sampling---a special case of component-wise M-H sampling
+\item Introduce the idea of latent variables and show how they lend themselves to Gibbs sampling---a special case of component-wise M-H sampling.
+\item Introduce acyclic directed graphs (DAGs) and describe how they can be
+useful for identifying the variables involved in a full-conditional distribution.
 \end{itemize}
 
 
@@ -229,6 +230,17 @@ We could have attributed the departure from Hardy-Weinberg proportions to a mixt
 This is, in fact, the {\em structure} model with no admixture, $K=2$, and a single locus.
 
 Gibbs sampling is straightforward\ldots\hfill\fbox{{\footnotesize Computer Demo:} {\tiny {\tt newhybs}  via {\tt RunNewHybs.sh}}}
+
+
+
+
+
+\newslide{The simple genetic mixture model}
+
+Gotta throw some more slides in here.
+
+
+
 
 \newslide{Wrap-Up}
 Main Points:
