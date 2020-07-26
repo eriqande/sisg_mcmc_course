@@ -1,0 +1,236 @@
+% put all Mike's macros in and begin document
+\input{preamble.tex}
+\rhead{Session 7 -- MCMC in more dimensions -- \thepage}
+
+
+
+
+% each \include command puts a new file in.
+
+% to make typesetting faster while working on a single
+% section, but still have the appropriate page numbering
+% and references, use the \includeonly command
+
+
+
+\newlecture{The Metropolis-Hastings algorithm \\
+in more than one dimension}
+Goals of this lecture:
+\begin{itemize}
+\item Introduce a simple model for ``inbreeding''
+\item Consider MCMC in more than a single dimension
+\item Describe component-wise Metropolis-Hastings sampling 
+\end{itemize}
+
+\newslide{Genotype Frequencies and Inbreeding}
+Starting with the last exercise of Session~3: one locus with two alleles, $A$ and $a$, at frequencies $p$ and $1-p$, respectively, and ``inbreeding coefficient'' $f$.
+
+Probabilities of the three genotypes are:
+\begin{itemize}
+\item $P(AA) = fp + (1-f)p^2$
+\item $P(Aa~\mathrm{or}~aA) = (1-f)2p(1-p)$
+\item $P(aa) = f(1-p) + (1-f)(1-p)^2$
+\end{itemize}
+
+Since ``inbreeding'' is used to describe a lot of (related) things, let's briefly review what this model is saying\ldots
+
+
+
+
+%%%% INBREEDING DIAGRAMS
+\newslide{Inbreeding model}
+\enlargethispage*{1000pt}
+\begin{minipage}[c]{.45\textwidth}
+\begin{center}
+Not-inbred with probability \\
+$1-f$
+
+\includegraphics[width=.8\textwidth]{illus/SimpleNotInbreeding.pdf}
+\end{center}
+\begin{itemize}
+\small
+\item $P(AA) = p^2$
+\item $P(Aa~\mathrm{or}~aA) = 2p(1-p)$
+\item $P(aa) = (1-p)^2$
+\end{itemize}
+
+\end{minipage}
+\hfill
+\begin{minipage}[c]{.45\textwidth}
+\begin{center}
+Inbred with probability \\
+$f$
+
+\includegraphics[width=.8\textwidth]{illus/SimpleInbreeding.pdf}
+\end{center}
+\begin{itemize}
+\small
+\item $P(AA) = p $
+\item $P(Aa~\mathrm{or}~aA) = 0$
+\item $P(aa) = (1-p)$
+\end{itemize}
+\end{minipage}
+\hrule
+{\small
+\begin{eqnarray*}
+P(n_{AA},n_{Aa},n_{aa}|p,f) &=& C\times [fp + (1-f)p^2]^{n_{AA}} \times [(1-f)2p(1-p)]^{n_{Aa}} \\
+ &\times & [ f(1-p) + (1-f)(1-p)^2]^{n_{aa}}
+\end{eqnarray*}
+}
+
+
+
+
+\newslide{What Our Data Would Look Like}
+\begin{itemize}
+\item We have a sample of $n$ individuals total.
+\begin{itemize}
+\item $n_{AA}$ are homozygous for the $A$ allele
+\item $n_{Aa}$ are heterorozygous
+\item $n_{aa}$ are homozygous for the $a$ allele
+\end{itemize}
+\item Clearly, $n=n_{AA} + n_{Aa} + n_{aa}$
+\end{itemize}
+
+A concrete example we will use throughout this lecture is $n=50$ with:
+\[
+n_{AA}=30~~~~~~~~~~~~~n_{Aa}=10~~~~~~~~~~~~~n_{aa}=10
+\]
+which are roughly the expected values if $p=.7$ and $f=.5$.
+
+
+
+
+%%BAYESIAN SPECIFICATION FOR ESTIMATING f and p
+\newslide{Bayesian Model for Estimating $f$ and $p$}
+To go about estimating $f$ and $p$ in a Bayesian fashion, we must fully specify the model.  This means that we need 
+\begin{itemize}
+\item Priors for $f$ and $p$.  We will choose uniform priors $f\sim\mathrm{Beta}(1,1)$ and $p\sim\mathrm{Beta}(1,1)$
+\item The data themselves.  These are $n_{AA}$, $n_{Aa}$, and $n_{aa}$.
+\item The likelihood: $P(n_{AA},n_{Aa},n_{aa}|p,f)$, which is given on the previous page
+\end{itemize}
+The posterior distribution is then prior $\times$ likelihood, divided by the (``nasty'') normalizing constant
+\[
+P(p,f|n_{AA},n_{Aa},n_{aa}) = \frac{P(f)P(p)P(n_{AA},n_{Aa},n_{aa}|p,f)}{\int_{f,p}P(f)P(p)P(n_{AA},n_{Aa},n_{aa}|p,f)dfdp}
+\]
+
+
+\newpage
+Computing the normalizing constant is difficult, but with MCMC, {\em we don't have to!}
+
+Recall, to perform MCMC it suffices to know the target distribution up to a constant of proportionality. 
+
+Our target distribution is 
+\[
+P(p,f|n_{AA},n_{Aa},n_{aa}) \propto P(f)P(p)P(n_{AA},n_{Aa},n_{aa}|p,f)
+\]
+So long as $0< f< 1$ and $0<p<1$.
+
+Otherwise it is 0.
+
+
+\newslide{Two-Dimensional M-H Sampler}
+We can compute the target distribution (up to a constant) easily for any $f$ and $p$.   So, to simulate from this posterior distribution we can just implement a Metropolis-Hastings sampler.  
+
+Following the examples of Session~3, for $p$ we will choose a normal proposal distribution centered on the current value with standard deviation of $s_p$:
+\[
+	q(p^*|p) \equiv \mathrm{Normal}(p,s_p)
+\]
+And, we will use the same for $f$:
+\[
+	q(f^*|f) \equiv \mathrm{Normal}(f,s_f)
+\]
+
+Applying these proposal distributions in sequence gives us a simple way to simulate proposed values, $(p^*,f^*)$, from the current values $(p,f)$.
+
+\newpage
+
+A ``sweep'' of our MCMC algorithm would look like:
+\begin{enumerate}
+\item Propose a new value, $(p^*,f^*)$ for $(p,f)$
+\begin{itemize}
+\item propose $p^*$ from $\mathrm{Normal}(p,s_p)$
+\item propose $f^*$ from $\mathrm{Normal}(f,s_f)$
+\end{itemize}
+\item Accept or reject the proposed value $(p^*,f^*)$ with probability $R$ which is the minimum of 1 and the Hasting's Ratio:
+\end{enumerate}
+\[
+\small
+R=\min\biggr\{1,
+\frac{q(p|p^*)q(f|f^*)}{q(p^*|p)q(f^*|f) } \times 
+\frac{P(p^*)P(f^*)P(n_{AA},n_{Aa},n_{aa}|p^*,f^*)}{P(p)P(f)P(n_{AA},n_{Aa},n_{aa}|p,f)}
+\biggl\}
+\]
+If you accept the proposed value, set the current value to the proposed value.  Otherwise leave the current values unchanged.
+
+\fbox{Computer Demo: {\tt inbred\_p -n 30 10 10} {\small (starts on ``Jointly'' (j))}}
+
+
+\newslide{Component-wise Metropolis Hastings Sampler  }
+\begin{itemize}
+\item In any MCMC implementation, the proposal distribution {\em need not propose changes to {\bf every} variable/parameter  in the model}.
+\item In fact, there are few ``real-world'' problems requiring MCMC in which you would use a single proposal distribution in which changes were proposed to all the variables in the model.
+\item {\bf Important Concept:}
+\begin{itemize}
+\item Any proposal distribution, regardless of how many or how few variables it proposes changes to, is valid, so long as the proposal is accepted or rejected in a way that satisfies detailed balance w.r.t.\ the target distribution.
+\item These different flavors of the ``propose-reject/accept'' step may be combined in series in whatever manner is desired, so long as they produce an irreducible, aperiodic chain\footnote{Nonetheless, some ways are better than others and will lead to a better-mixing chain}. 
+\end{itemize}
+\end{itemize}
+
+
+\newslide{Simple Component-wise M-H Sampler for $p$ and $f$}
+Simplest scenario has a sweep as follows:
+\begin{enumerate}
+\item Do an update for \textcolor{Violet}{$p$}:
+\begin{enumerate}
+\item propose $\textcolor{Violet}{p^*}$ from $\mathrm{Normal}(p,s_p)$
+\item Accept or reject the proposed value $\textcolor{Violet}{p^*}$ with probability $\min\{1,\alpha\}$, where: 
+\[
+\alpha = \frac{\textcolor{Violet}{q(p|p^*)}}{\textcolor{Violet}{q(p^*|p)} } \times
+\frac{\textcolor{Violet}{P(p^*)}P(f)\textcolor{Violet}{P(n_{AA},n_{Aa},n_{aa}|p^*,f)}}{\textcolor{Violet}{P(p)}P(f)\textcolor{Violet}{P(n_{AA},n_{Aa},n_{aa}|p,f)}}
+\]
+\end{enumerate}
+\item Do an update for \textcolor{Orange}{$f$}:
+\begin{enumerate}
+\item propose $\textcolor{Orange}{f^*}$ from $\mathrm{Normal}(f,s_f)$
+\item Accept or reject the proposed value $\textcolor{Orange}{f^*}$ with probability $\min\{1,\alpha\}$, where: 
+\[
+\alpha = \frac{
+	\textcolor{Orange}{q(f|f^*)}}  {\textcolor{Orange}{q(f^*|f)} } \times
+\frac{
+	P(p)\textcolor{Orange}{P(f^*)}\textcolor{Orange}{P(n_{AA},n_{Aa},n_{aa}|p,f^*)}}
+{P(p)\textcolor{Orange}{P(f)}\textcolor{Orange}{P(n_{AA},n_{Aa},n_{aa}|p,f)}}
+\]
+\end{enumerate}
+\end{enumerate}
+
+
+
+\newslide{Simple Component-wise M-H Sampler for $p$ and $f$, cont'd}
+Some very important points:
+\begin{itemize}
+\item The proposals are each a little simpler (though just slightly\ldots) than jointly proposing changes to $(p,f)$
+\item Neither step~1 nor step~2 of the sweep creates an irreducible chain (obviously, if you never update $p$, for example, your chain could never reach every possible value of $p$).
+\item However, taken together, steps~1 and~2 create an irreducible chain.
+\end{itemize}
+\fbox{Computer Demo: {\tt inbred\_p} {\small (Component-wise using (c) from info window)}}
+
+
+\newslide{Simple Component-wise M-H Sampler for $p$ and $f$, cont'd}
+Two more important points
+\begin{itemize}
+\item The form of the Hastings ratio is a little simpler when we have proposed changing just a subset of the variables.
+\item However, in this case the target density remains just as complex, because it does not factorize into a separate part for $f$ and a part for $p$.
+\item Since we are changing just a small part of the model at a time, it seems like we could spend some more energy on making each separate proposal distribution more ``intelligent.''
+\end{itemize}
+
+The final two points above get us to thinking about Gibbs sampling, which we will return to after a brief discussion of latent variables\ldots
+
+
+
+
+
+
+
+
+\end{document}
