@@ -235,9 +235,71 @@ Gibbs sampling is straightforward\ldots\hfill\fbox{{\footnotesize Computer Demo:
 
 
 
-\newslide{The simple genetic mixture model}
+\newslide{The haploid genetic mixture model as a DAG}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{figures/haploid-mixture.pdf}
+\end{center}
 
-Gotta throw some more slides in here.
+
+
+\newslide{Neighbors in the moralized undirected graph are the variables involved in the full conditionals}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{figures/haploid-mixture-UG.pdf}
+\end{center}
+
+
+
+\newslide{Neighbors in the moralized undirected graph are the variables involved in the full conditionals~~~(For $Z$, here)}
+
+\mbox{}
+\vspace*{-3.5em}
+\mbox{}
+
+\begin{center}
+\includegraphics[width=0.43\textwidth]{figures/haploid-mixture-UG-Z.pdf}
+\end{center}
+\texttt{posterior\_prob\_assignment = function(x,P,w)}
+
+
+
+\newslide{Neighbors in the moralized undirected graph are the variables involved in the full conditionals~~~(For $\bm{P}$, here)}
+
+\mbox{}
+\vspace*{-3.5em}
+\mbox{}
+
+\begin{center}
+\includegraphics[width=0.43\textwidth]{figures/haploid-mixture-UG-P.pdf}
+\end{center}
+\texttt{posterior\_param\_allele\_frequencies = function(x,z,a)}
+
+
+
+
+\newslide{Neighbors in the moralized undirected graph are the variables involved in the full conditionals~~~(For $\bm{w}$, here)}
+
+\mbox{}
+\vspace*{-3.5em}
+\mbox{}
+
+\begin{center}
+\includegraphics[width=0.43\textwidth]{figures/haploid-mixture-UG-w.pdf}
+\end{center}
+Function not implemented for this yet\ldots
+
+
+
+\newslide{The genetic mixture model is sometimes executed whilst assuming the mixing proportions are known}
+
+\mbox{}
+\vspace*{-3.5em}
+\mbox{}
+
+\begin{center}
+\includegraphics[width=0.63\textwidth]{figures/haploid-mixture-UG-fixed-w.pdf}
+\end{center}
+
+
 
 
 
@@ -245,16 +307,10 @@ Gotta throw some more slides in here.
 \newslide{Wrap-Up}
 Main Points:
 \begin{itemize}
-\item In problems where it is useful, MCMC almost always proceeds by proposing changes to a small subset of the variables.
-\item There may be many different proposal types.
-\begin{itemize}
-\item Each proposal type {\em must} satisfy detailed balance.
-\item Each proposal type need not make an irreducible chain, BUT
-\item All proposals taken together should form an irreducible chain.
-\end{itemize}
 \item Latent variables may help in factorizing complex joint densities and lend themselves to Gibbs sampling.
 \item Simple proposals may be fast to implement, but may not lead to good mixing of the chain.
 \item Designing good proposal distributions is where one gets to perform ``art" in implementing MCMC.
+\item If the full-conditional distribution of a variable is tractable, it is a good choice for a proposal distribution.
 \end{itemize}
 
 \end{document}
